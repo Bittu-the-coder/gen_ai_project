@@ -1,31 +1,65 @@
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Loader2, Lock, User, AlertCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Loader2, Lock, User, AlertCircle } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   requireAuth?: boolean;
   requireArtisan?: boolean;
   fallbackPath?: string;
-  language?: 'english' | 'hindi' | 'hinglish';
+  language?: "english" | "hindi" | "hinglish";
 }
 
 // Mock authentication state - replace with actual auth context/state
 const useAuth = () => {
   // This would typically come from your auth context/provider
   const [authState, setAuthState] = React.useState({
-    isLoading: false,
+    isLoading: true,
     isAuthenticated: false,
     user: null as any,
-    isArtisan: false
+    isArtisan: false,
   });
 
-  // Simulate auth loading
+  // Simulate auth loading and check for demo auth
   React.useEffect(() => {
-    setAuthState(prev => ({ ...prev, isLoading: false }));
+    const checkAuth = () => {
+      try {
+        // Check for demo authentication
+        const demoAuth = localStorage.getItem("demoAuth");
+        if (demoAuth) {
+          const parsedAuth = JSON.parse(demoAuth);
+          setAuthState({
+            isLoading: false,
+            isAuthenticated: parsedAuth.isAuthenticated,
+            user: parsedAuth.user,
+            isArtisan: parsedAuth.isArtisan,
+          });
+          return;
+        }
+
+        // Check for regular authentication (implement your actual auth logic here)
+        // For now, default to not authenticated
+        setAuthState((prev) => ({
+          ...prev,
+          isLoading: false,
+          isAuthenticated: false,
+          isArtisan: false,
+        }));
+      } catch (error) {
+        console.error("Auth check failed:", error);
+        setAuthState((prev) => ({
+          ...prev,
+          isLoading: false,
+          isAuthenticated: false,
+          isArtisan: false,
+        }));
+      }
+    };
+
+    checkAuth();
   }, []);
 
   return authState;
@@ -35,43 +69,46 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   requireAuth = false,
   requireArtisan = false,
-  fallbackPath = '/login',
-  language = 'english'
+  fallbackPath = "/login",
+  language = "english",
 }) => {
   const { isLoading, isAuthenticated, isArtisan } = useAuth();
   const location = useLocation();
 
   const translations = {
     english: {
-      loading: 'Loading...',
-      authRequired: 'Authentication Required',
-      authRequiredDesc: 'You need to be logged in to access this page.',
-      artisanRequired: 'Artisan Access Required',
-      artisanRequiredDesc: 'This page is only accessible to registered artisans.',
-      loginButton: 'Go to Login',
-      homeButton: 'Go to Home',
-      becomeArtisan: 'Become an Artisan'
+      loading: "Loading...",
+      authRequired: "Authentication Required",
+      authRequiredDesc: "You need to be logged in to access this page.",
+      artisanRequired: "Artisan Access Required",
+      artisanRequiredDesc:
+        "This page is only accessible to registered artisans.",
+      loginButton: "Go to Login",
+      homeButton: "Go to Home",
+      becomeArtisan: "Become an Artisan",
     },
     hindi: {
-      loading: 'लोड हो रहा है...',
-      authRequired: 'प्रमाणीकरण आवश्यक',
-      authRequiredDesc: 'इस पेज को एक्सेस करने के लिए आपको लॉग इन होना होगा।',
-      artisanRequired: 'कारीगर पहुंच आवश्यक',
-      artisanRequiredDesc: 'यह पेज केवल पंजीकृत कारीगरों के लिए सुलभ है।',
-      loginButton: 'लॉगिन पर जाएं',
-      homeButton: 'होम पर जाएं',
-      becomeArtisan: 'कारीगर बनें'
+      loading: "लोड हो रहा है...",
+      authRequired: "प्रमाणीकरण आवश्यक",
+      authRequiredDesc: "इस पेज को एक्सेस करने के लिए आपको लॉग इन होना होगा।",
+      artisanRequired: "कारीगर पहुंच आवश्यक",
+      artisanRequiredDesc: "यह पेज केवल पंजीकृत कारीगरों के लिए सुलभ है।",
+      loginButton: "लॉगिन पर जाएं",
+      homeButton: "होम पर जाएं",
+      becomeArtisan: "कारीगर बनें",
     },
     hinglish: {
-      loading: 'Loading...',
-      authRequired: 'Authentication Required',
-      authRequiredDesc: 'Is page ko access karne ke liye aapko login hona hoga.',
-      artisanRequired: 'Artisan Access Required',
-      artisanRequiredDesc: 'Yeh page sirf registered artisans ke liye accessible hai.',
-      loginButton: 'Login par jao',
-      homeButton: 'Home par jao',
-      becomeArtisan: 'Artisan bano'
-    }
+      loading: "Loading...",
+      authRequired: "Authentication Required",
+      authRequiredDesc:
+        "Is page ko access karne ke liye aapko login hona hoga.",
+      artisanRequired: "Artisan Access Required",
+      artisanRequiredDesc:
+        "Yeh page sirf registered artisans ke liye accessible hai.",
+      loginButton: "Login par jao",
+      homeButton: "Home par jao",
+      becomeArtisan: "Artisan bano",
+    },
   };
 
   const t = translations[language];
@@ -102,7 +139,11 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           <CardContent className="text-center space-y-4">
             <p className="text-muted-foreground">{t.authRequiredDesc}</p>
             <div className="flex flex-col sm:flex-row gap-2">
-              <Link to={fallbackPath} state={{ from: location }} className="flex-1">
+              <Link
+                to={fallbackPath}
+                state={{ from: location }}
+                className="flex-1"
+              >
                 <Button className="w-full">
                   <User className="h-4 w-4 mr-2" />
                   {t.loginButton}
@@ -157,7 +198,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 // Higher-order component for easier usage
 export const withProtection = (
   Component: React.ComponentType<any>,
-  options: Omit<ProtectedRouteProps, 'children'>
+  options: Omit<ProtectedRouteProps, "children">
 ) => {
   return (props: any) => (
     <ProtectedRoute {...options}>

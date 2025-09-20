@@ -1,18 +1,30 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Mic, Languages, Star, Heart, ShoppingBag, Menu, X, User, Store } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import heroImage from '@/assets/hero-marketplace.jpg';
-import artisanImage from '@/assets/artisan-priya.jpg';
-import potteryImage from '@/assets/pottery-collection.jpg';
-import { LanguageToggle } from '@/components/LanguageToggle';
-import { VoiceUpload } from '@/components/VoiceUpload';
-import { ArtisanCard } from '@/components/ArtisanCard';
-import { ProductCard } from '@/components/ProductCard';
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Mic,
+  Languages,
+  Star,
+  Heart,
+  ShoppingBag,
+  Menu,
+  X,
+  User,
+  Store,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import heroImage from "@/assets/hero-marketplace.jpg";
+import artisanImage from "@/assets/artisan-priya.jpg";
+import potteryImage from "@/assets/pottery-collection.jpg";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { VoiceUpload } from "@/components/VoiceUpload";
+import { ArtisanCard } from "@/components/ArtisanCard";
+import { ProductCard } from "@/components/ProductCard";
 
 const Index = () => {
-  const [language, setLanguage] = React.useState<'english' | 'hindi' | 'hinglish'>('english');
+  const [language, setLanguage] = React.useState<
+    "english" | "hindi" | "hinglish"
+  >("english");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
 
   const translations = {
@@ -20,53 +32,56 @@ const Index = () => {
       hero: {
         title: "Voice-to-Shop",
         subtitle: "AI-Powered Marketplace for Local Artisans",
-        description: "Empowering artisans to sell globally with just a voice note. AI creates your product story, descriptions, and social media content in 60 seconds."
+        description:
+          "Empowering artisans to sell globally with just a voice note. AI creates your product story, descriptions, and social media content in 60 seconds.",
       },
       nav: {
         home: "Home",
         marketplace: "Marketplace",
         login: "Login",
         sellNow: "Sell Now",
-        browseMarketplace: "Browse Marketplace"
+        browseMarketplace: "Browse Marketplace",
       },
       cta: "Start Selling with Voice",
       featured: "Featured Artisans",
-      products: "Latest Products"
+      products: "Latest Products",
     },
     hindi: {
       hero: {
         title: "आवाज़-से-दुकान",
         subtitle: "स्थानीय कारीगरों के लिए AI-संचालित बाज़ार",
-        description: "कारीगरों को केवल एक आवाज़ के नोट से विश्वव्यापी बिक्री में सशक्त बनाना। AI 60 सेकंड में आपकी उत्पाद कहानी, विवरण और सोशल मीडिया सामग्री बनाता है।"
+        description:
+          "कारीगरों को केवल एक आवाज़ के नोट से विश्वव्यापी बिक्री में सशक्त बनाना। AI 60 सेकंड में आपकी उत्पाद कहानी, विवरण और सोशल मीडिया सामग्री बनाता है।",
       },
       nav: {
         home: "होम",
         marketplace: "बाज़ार",
         login: "लॉगिन",
         sellNow: "अभी बेचें",
-        browseMarketplace: "बाज़ार देखें"
+        browseMarketplace: "बाज़ार देखें",
       },
       cta: "आवाज़ के साथ बेचना शुरू करें",
       featured: "विशेष कारीगर",
-      products: "नवीनतम उत्पाद"
+      products: "नवीनतम उत्पाद",
     },
     hinglish: {
       hero: {
         title: "Voice-to-Shop",
         subtitle: "Local Artisans ke liye AI-powered Marketplace",
-        description: "Artisans ko sirf ek voice note se global selling mein empower karna. AI 60 seconds mein aapki product story, descriptions aur social media content banata hai."
+        description:
+          "Artisans ko sirf ek voice note se global selling mein empower karna. AI 60 seconds mein aapki product story, descriptions aur social media content banata hai.",
       },
       nav: {
         home: "Home",
         marketplace: "Marketplace",
         login: "Login",
         sellNow: "Sell Now",
-        browseMarketplace: "Browse Marketplace"
+        browseMarketplace: "Browse Marketplace",
       },
       cta: "Voice ke saath selling start karo",
       featured: "Featured Artisans",
-      products: "Latest Products"
-    }
+      products: "Latest Products",
+    },
   };
 
   const t = translations[language];
@@ -82,7 +97,7 @@ const Index = () => {
               Voice-to-Shop
             </span>
           </Link>
-          
+
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
             <Link to="/">
@@ -96,7 +111,10 @@ const Index = () => {
                 <span>{t.nav.marketplace}</span>
               </Button>
             </Link>
-            <LanguageToggle language={language} onLanguageChange={setLanguage} />
+            <LanguageToggle
+              language={language}
+              onLanguageChange={setLanguage}
+            />
             <Link to="/login">
               <Button variant="outline" className="flex items-center space-x-2">
                 <User className="h-4 w-4" />
@@ -113,14 +131,21 @@ const Index = () => {
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center space-x-2">
-            <LanguageToggle language={language} onLanguageChange={setLanguage} />
+            <LanguageToggle
+              language={language}
+              onLanguageChange={setLanguage}
+            />
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Toggle menu"
             >
-              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {isMobileMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
             </Button>
           </div>
         </div>
@@ -135,14 +160,23 @@ const Index = () => {
                     {t.nav.home}
                   </Button>
                 </Link>
-                <Link to="/marketplace" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Button variant="ghost" className="w-full justify-start flex items-center space-x-2">
+                <Link
+                  to="/marketplace"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start flex items-center space-x-2"
+                  >
                     <Store className="h-4 w-4" />
                     <span>{t.nav.marketplace}</span>
                   </Button>
                 </Link>
                 <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Button variant="outline" className="w-full justify-start flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start flex items-center space-x-2"
+                  >
                     <User className="h-4 w-4" />
                     <span>{t.nav.login}</span>
                   </Button>
@@ -184,7 +218,10 @@ const Index = () => {
               </div>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/upload">
-                  <Button size="lg" className="bg-gradient-to-r from-primary to-primary-glow hover:shadow-warm text-lg py-6 px-8">
+                  <Button
+                    size="lg"
+                    className="bg-gradient-to-r from-primary to-primary-glow hover:shadow-warm text-lg py-6 px-8"
+                  >
                     <Mic className="h-5 w-5 mr-2" />
                     {t.cta}
                   </Button>
@@ -199,9 +236,9 @@ const Index = () => {
             </div>
             <div className="relative">
               <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 via-primary-glow/20 to-accent/20 blur-2xl"></div>
-              <img 
-                src={heroImage} 
-                alt="Indian artisan marketplace with handmade crafts" 
+              <img
+                src={heroImage}
+                alt="Indian artisan marketplace with handmade crafts"
                 className="relative rounded-2xl shadow-warm w-full h-auto"
               />
             </div>
@@ -233,7 +270,7 @@ const Index = () => {
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <Link to="/artisan/priya-sharma">
-              <ArtisanCard 
+              <ArtisanCard
                 name="Priya Sharma"
                 craft="Traditional Pottery"
                 location="Jaipur, Rajasthan"
@@ -243,7 +280,7 @@ const Index = () => {
               />
             </Link>
             <Link to="/artisan/arjun-kumar">
-              <ArtisanCard 
+              <ArtisanCard
                 name="Arjun Kumar"
                 craft="Handwoven Textiles"
                 location="Varanasi, UP"
@@ -253,7 +290,7 @@ const Index = () => {
               />
             </Link>
             <Link to="/artisan/meera-devi">
-              <ArtisanCard 
+              <ArtisanCard
                 name="Meera Devi"
                 craft="Wooden Handicrafts"
                 location="Kashmir"
@@ -277,7 +314,7 @@ const Index = () => {
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Link to="/product/1">
-              <ProductCard 
+              <ProductCard
                 title="Handcrafted Pottery Set"
                 price="₹2,999"
                 artisan="Priya Sharma"
@@ -287,7 +324,7 @@ const Index = () => {
               />
             </Link>
             <Link to="/product/2">
-              <ProductCard 
+              <ProductCard
                 title="Silk Scarf Collection"
                 price="₹1,599"
                 artisan="Arjun Kumar"
@@ -297,7 +334,7 @@ const Index = () => {
               />
             </Link>
             <Link to="/product/3">
-              <ProductCard 
+              <ProductCard
                 title="Wooden Jewelry Box"
                 price="₹3,499"
                 artisan="Meera Devi"
@@ -307,7 +344,7 @@ const Index = () => {
               />
             </Link>
             <Link to="/product/4">
-              <ProductCard 
+              <ProductCard
                 title="Ceramic Dinner Set"
                 price="₹4,999"
                 artisan="Priya Sharma"
@@ -324,7 +361,10 @@ const Index = () => {
       <footer className="bg-foreground/5 py-12">
         <div className="container mx-auto px-4">
           <div className="text-center">
-            <Link to="/" className="flex items-center justify-center space-x-2 mb-4">
+            <Link
+              to="/"
+              className="flex items-center justify-center space-x-2 mb-4"
+            >
               <Mic className="h-8 w-8 text-primary" />
               <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
                 Voice-to-Shop

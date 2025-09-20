@@ -1,26 +1,36 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { 
-  Mic, ArrowLeft, Minus, Plus, Trash2, ShoppingBag, 
-  CreditCard, Truck, Shield, Heart 
-} from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { LanguageToggle } from '@/components/LanguageToggle';
-import potteryImage from '@/assets/pottery-collection.jpg';
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import {
+  Mic,
+  ArrowLeft,
+  Minus,
+  Plus,
+  Trash2,
+  ShoppingBag,
+  CreditCard,
+  Truck,
+  Shield,
+  Heart,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import potteryImage from "@/assets/pottery-collection.jpg";
 
 const Cart = () => {
-  const [language, setLanguage] = React.useState<'english' | 'hindi' | 'hinglish'>('english');
+  const [language, setLanguage] = React.useState<
+    "english" | "hindi" | "hinglish"
+  >("english");
 
   const translations = {
     english: {
       shoppingCart: "Shopping Cart",
       backToMarketplace: "Back to Marketplace",
-      continueShopping: "Continue Shopping", 
+      continueShopping: "Continue Shopping",
       yourCart: "Your Cart",
       items: "items",
       subtotal: "Subtotal",
@@ -41,7 +51,7 @@ const Cart = () => {
       secureCheckout: "Secure Checkout",
       freeShipping: "Free shipping on orders over ₹999",
       securePayment: "Secure payment processing",
-      returnPolicy: "30-day return policy"
+      returnPolicy: "30-day return policy",
     },
     hindi: {
       shoppingCart: "शॉपिंग कार्ट",
@@ -67,13 +77,13 @@ const Cart = () => {
       secureCheckout: "सुरक्षित चेकआउट",
       freeShipping: "₹999 से अधिक के ऑर्डर पर मुफ्त शिपिंग",
       securePayment: "सुरक्षित पेमेंट प्रोसेसिंग",
-      returnPolicy: "30-दिन वापसी नीति"
+      returnPolicy: "30-दिन वापसी नीति",
     },
     hinglish: {
       shoppingCart: "Shopping Cart",
       backToMarketplace: "Marketplace mein wapas jao",
       continueShopping: "Shopping continue karo",
-      yourCart: "Aapka Cart", 
+      yourCart: "Aapka Cart",
       items: "items",
       subtotal: "Subtotal",
       shipping: "Shipping",
@@ -83,7 +93,8 @@ const Cart = () => {
       free: "Free",
       calculated: "Checkout mein calculate hoga",
       emptyCart: "Aapka cart empty hai",
-      emptyCartMessage: "Kuch beautiful handcrafted items add karo to get started",
+      emptyCartMessage:
+        "Kuch beautiful handcrafted items add karo to get started",
       remove: "Remove",
       quantity: "Quantity",
       addToWishlist: "Wishlist mein add karo",
@@ -93,8 +104,8 @@ const Cart = () => {
       secureCheckout: "Secure Checkout",
       freeShipping: "₹999 se upar ke orders pe free shipping",
       securePayment: "Secure payment processing",
-      returnPolicy: "30-day return policy"
-    }
+      returnPolicy: "30-day return policy",
+    },
   };
 
   const t = translations[language];
@@ -109,21 +120,24 @@ const Cart = () => {
       artisan: "Priya Sharma",
       image: potteryImage,
       quantity: 1,
-      inStock: true
+      inStock: true,
     },
     {
       id: 2,
       title: "Silk Scarf Collection",
       price: 1599,
       originalPrice: 2199,
-      artisan: "Arjun Kumar", 
+      artisan: "Arjun Kumar",
       image: potteryImage,
       quantity: 2,
-      inStock: true
-    }
+      inStock: true,
+    },
   ];
 
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const subtotal = cartItems.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
   const shipping = subtotal > 999 ? 0 : 99;
   const tax = Math.round(subtotal * 0.05); // 5% tax
   const totalAmount = subtotal + shipping + tax;
@@ -151,7 +165,10 @@ const Cart = () => {
               </span>
             </Link>
             <div className="flex items-center space-x-4">
-              <LanguageToggle language={language} onLanguageChange={setLanguage} />
+              <LanguageToggle
+                language={language}
+                onLanguageChange={setLanguage}
+              />
               <Link to="/login">
                 <Button variant="outline">Login</Button>
               </Link>
@@ -189,7 +206,10 @@ const Cart = () => {
             </span>
           </Link>
           <div className="flex items-center space-x-4">
-            <LanguageToggle language={language} onLanguageChange={setLanguage} />
+            <LanguageToggle
+              language={language}
+              onLanguageChange={setLanguage}
+            />
             <Link to="/login">
               <Button variant="outline">Login</Button>
             </Link>
@@ -201,7 +221,11 @@ const Cart = () => {
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link to="/marketplace">
-            <Button variant="ghost" size="sm" className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex items-center gap-2"
+            >
               <ArrowLeft className="h-4 w-4" />
               {t.backToMarketplace}
             </Button>
@@ -233,7 +257,10 @@ const Cart = () => {
                         className="w-24 h-24 rounded-lg object-cover"
                       />
                       {!item.inStock && (
-                        <Badge variant="destructive" className="absolute -top-2 -right-2 text-xs">
+                        <Badge
+                          variant="destructive"
+                          className="absolute -top-2 -right-2 text-xs"
+                        >
                           Out of Stock
                         </Badge>
                       )}
@@ -245,10 +272,14 @@ const Cart = () => {
                           {item.title}
                         </h3>
                       </Link>
-                      <p className="text-sm text-muted-foreground mb-2">by {item.artisan}</p>
-                      
+                      <p className="text-sm text-muted-foreground mb-2">
+                        by {item.artisan}
+                      </p>
+
                       <div className="flex items-center gap-2 mb-3">
-                        <span className="text-lg font-bold text-primary">₹{item.price.toLocaleString()}</span>
+                        <span className="text-lg font-bold text-primary">
+                          ₹{item.price.toLocaleString()}
+                        </span>
                         {item.originalPrice > item.price && (
                           <span className="text-sm text-muted-foreground line-through">
                             ₹{item.originalPrice.toLocaleString()}
@@ -258,12 +289,19 @@ const Cart = () => {
 
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                          <span className="text-sm text-muted-foreground">{t.quantity}:</span>
+                          <span className="text-sm text-muted-foreground">
+                            {t.quantity}:
+                          </span>
                           <div className="flex items-center gap-2">
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                              onClick={() =>
+                                updateQuantity(
+                                  item.id,
+                                  Math.max(1, item.quantity - 1)
+                                )
+                              }
                               disabled={item.quantity <= 1}
                             >
                               <Minus className="h-3 w-3" />
@@ -271,14 +309,21 @@ const Cart = () => {
                             <Input
                               type="number"
                               value={item.quantity}
-                              onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 1)}
+                              onChange={(e) =>
+                                updateQuantity(
+                                  item.id,
+                                  parseInt(e.target.value) || 1
+                                )
+                              }
                               className="w-16 text-center"
                               min="1"
                             />
                             <Button
                               variant="outline"
                               size="sm"
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              onClick={() =>
+                                updateQuantity(item.id, item.quantity + 1)
+                              }
                             >
                               <Plus className="h-3 w-3" />
                             </Button>
@@ -289,8 +334,8 @@ const Cart = () => {
                           <Button variant="ghost" size="sm">
                             <Heart className="h-4 w-4" />
                           </Button>
-                          <Button 
-                            variant="ghost" 
+                          <Button
+                            variant="ghost"
                             size="sm"
                             onClick={() => removeItem(item.id)}
                             className="text-destructive hover:text-destructive"
@@ -327,25 +372,28 @@ const Cart = () => {
                   <span className="text-muted-foreground">{t.subtotal}</span>
                   <span>₹{subtotal.toLocaleString()}</span>
                 </div>
-                
+
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">{t.shipping}</span>
                   <span>{shipping === 0 ? t.free : `₹${shipping}`}</span>
                 </div>
-                
+
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">{t.tax}</span>
                   <span>₹{tax}</span>
                 </div>
-                
+
                 <Separator />
-                
+
                 <div className="flex justify-between text-lg font-semibold">
                   <span>{t.total}</span>
                   <span>₹{totalAmount.toLocaleString()}</span>
                 </div>
 
-                <Button className="w-full bg-gradient-to-r from-primary to-primary-glow hover:shadow-warm" size="lg">
+                <Button
+                  className="w-full bg-gradient-to-r from-primary to-primary-glow hover:shadow-warm"
+                  size="lg"
+                >
                   <CreditCard className="h-4 w-4 mr-2" />
                   {t.proceedToCheckout}
                 </Button>
