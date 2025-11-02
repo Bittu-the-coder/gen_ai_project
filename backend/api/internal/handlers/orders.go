@@ -94,7 +94,7 @@ func (h *OrderHandler) GetOrder(c *gin.Context) {
 	}
 
 	// Check if user owns this order or is admin
-	if order.UserID != userID && !middleware.IsAdmin(c) {
+	if order.BuyerID != userID && !middleware.IsAdmin(c) {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You can only view your own orders"})
 		return
 	}
@@ -123,7 +123,7 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 	}
 
 	// Set user ID and status
-	order.UserID = userID
+	order.BuyerID = userID
 	order.Status = "pending"
 
 	// Calculate total amount
@@ -137,13 +137,12 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 		}
 
 		if product.Stock < item.Quantity {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Insufficient stock for product: " + product.Name})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Insufficient stock for product: " + product.Title})
 			return
 		}
 
 		// Set correct price from product
 		order.Items[i].Price = product.Price
-		order.Items[i].ProductName = product.Name
 		totalAmount += product.Price * float64(item.Quantity)
 	}
 
@@ -195,7 +194,7 @@ func (h *OrderHandler) CancelOrder(c *gin.Context) {
 	}
 
 	// Check if user owns this order
-	if order.UserID != userID {
+	if order.BuyerID != userID {
 		c.JSON(http.StatusForbidden, gin.H{"error": "You can only cancel your own orders"})
 		return
 	}

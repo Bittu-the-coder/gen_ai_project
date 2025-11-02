@@ -1,138 +1,158 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+import { LanguageToggle } from '@/components/LanguageToggle';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/contexts/AuthContext';
 import {
-  Mic,
+  getCart,
+  removeFromCart,
+  updateCartQuantity,
+} from '@/services/api/cart';
+import {
   ArrowLeft,
+  BarChart3,
+  CreditCard,
+  Heart,
+  LogOut,
+  Mic,
   Minus,
   Plus,
-  Trash2,
-  ShoppingBag,
-  CreditCard,
-  Truck,
   Shield,
-  Heart,
-} from "lucide-react";
-import { Link } from "react-router-dom";
-import { LanguageToggle } from "@/components/LanguageToggle";
-import potteryImage from "@/assets/pottery-collection.jpg";
+  ShoppingBag,
+  Trash2,
+  Truck,
+  User,
+} from 'lucide-react';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Cart = () => {
   const [language, setLanguage] = React.useState<
-    "english" | "hindi" | "hinglish"
-  >("english");
+    'english' | 'hindi' | 'hinglish'
+  >('english');
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   const translations = {
     english: {
-      shoppingCart: "Shopping Cart",
-      backToMarketplace: "Back to Marketplace",
-      continueShopping: "Continue Shopping",
-      yourCart: "Your Cart",
-      items: "items",
-      subtotal: "Subtotal",
-      shipping: "Shipping",
-      tax: "Tax",
-      total: "Total",
-      proceedToCheckout: "Proceed to Checkout",
-      free: "Free",
-      calculated: "Calculated at checkout",
-      emptyCart: "Your cart is empty",
-      emptyCartMessage: "Add some beautiful handcrafted items to get started",
-      remove: "Remove",
-      quantity: "Quantity",
-      addToWishlist: "Add to Wishlist",
-      couponCode: "Coupon Code",
-      applyCoupon: "Apply Coupon",
-      orderSummary: "Order Summary",
-      secureCheckout: "Secure Checkout",
-      freeShipping: "Free shipping on orders over ₹999",
-      securePayment: "Secure payment processing",
-      returnPolicy: "30-day return policy",
+      shoppingCart: 'Shopping Cart',
+      backToMarketplace: 'Back to Marketplace',
+      continueShopping: 'Continue Shopping',
+      yourCart: 'Your Cart',
+      items: 'items',
+      subtotal: 'Subtotal',
+      shipping: 'Shipping',
+      tax: 'Tax',
+      total: 'Total',
+      proceedToCheckout: 'Proceed to Checkout',
+      free: 'Free',
+      calculated: 'Calculated at checkout',
+      emptyCart: 'Your cart is empty',
+      emptyCartMessage: 'Add some beautiful handcrafted items to get started',
+      remove: 'Remove',
+      quantity: 'Quantity',
+      addToWishlist: 'Add to Wishlist',
+      couponCode: 'Coupon Code',
+      applyCoupon: 'Apply Coupon',
+      orderSummary: 'Order Summary',
+      secureCheckout: 'Secure Checkout',
+      freeShipping: 'Free shipping on orders over ₹999',
+      securePayment: 'Secure payment processing',
+      returnPolicy: '30-day return policy',
     },
     hindi: {
-      shoppingCart: "शॉपिंग कार्ट",
-      backToMarketplace: "बाज़ार में वापस जाएं",
-      continueShopping: "खरीदारी जारी रखें",
-      yourCart: "आपका कार्ट",
-      items: "आइटम",
-      subtotal: "उप-योग",
-      shipping: "शिपिंग",
-      tax: "कर",
-      total: "कुल",
-      proceedToCheckout: "चेकआउट के लिए आगे बढ़ें",
-      free: "मुफ्त",
-      calculated: "चेकआउट पर गणना की जाएगी",
-      emptyCart: "आपका कार्ट खाली है",
-      emptyCartMessage: "शुरू करने के लिए कुछ सुंदर हस्तशिल्प आइटम जोड़ें",
-      remove: "हटाएं",
-      quantity: "मात्रा",
-      addToWishlist: "विशलिस्ट में जोड़ें",
-      couponCode: "कूपन कोड",
-      applyCoupon: "कूपन लागू करें",
-      orderSummary: "ऑर्डर सारांश",
-      secureCheckout: "सुरक्षित चेकआउट",
-      freeShipping: "₹999 से अधिक के ऑर्डर पर मुफ्त शिपिंग",
-      securePayment: "सुरक्षित पेमेंट प्रोसेसिंग",
-      returnPolicy: "30-दिन वापसी नीति",
+      shoppingCart: 'शॉपिंग कार्ट',
+      backToMarketplace: 'बाज़ार में वापस जाएं',
+      continueShopping: 'खरीदारी जारी रखें',
+      yourCart: 'आपका कार्ट',
+      items: 'आइटम',
+      subtotal: 'उप-योग',
+      shipping: 'शिपिंग',
+      tax: 'कर',
+      total: 'कुल',
+      proceedToCheckout: 'चेकआउट के लिए आगे बढ़ें',
+      free: 'मुफ्त',
+      calculated: 'चेकआउट पर गणना की जाएगी',
+      emptyCart: 'आपका कार्ट खाली है',
+      emptyCartMessage: 'शुरू करने के लिए कुछ सुंदर हस्तशिल्प आइटम जोड़ें',
+      remove: 'हटाएं',
+      quantity: 'मात्रा',
+      addToWishlist: 'विशलिस्ट में जोड़ें',
+      couponCode: 'कूपन कोड',
+      applyCoupon: 'कूपन लागू करें',
+      orderSummary: 'ऑर्डर सारांश',
+      secureCheckout: 'सुरक्षित चेकआउट',
+      freeShipping: '₹999 से अधिक के ऑर्डर पर मुफ्त शिपिंग',
+      securePayment: 'सुरक्षित पेमेंट प्रोसेसिंग',
+      returnPolicy: '30-दिन वापसी नीति',
     },
     hinglish: {
-      shoppingCart: "Shopping Cart",
-      backToMarketplace: "Marketplace mein wapas jao",
-      continueShopping: "Shopping continue karo",
-      yourCart: "Aapka Cart",
-      items: "items",
-      subtotal: "Subtotal",
-      shipping: "Shipping",
-      tax: "Tax",
-      total: "Total",
-      proceedToCheckout: "Checkout ke liye proceed karo",
-      free: "Free",
-      calculated: "Checkout mein calculate hoga",
-      emptyCart: "Aapka cart empty hai",
+      shoppingCart: 'Shopping Cart',
+      backToMarketplace: 'Marketplace mein wapas jao',
+      continueShopping: 'Shopping continue karo',
+      yourCart: 'Aapka Cart',
+      items: 'items',
+      subtotal: 'Subtotal',
+      shipping: 'Shipping',
+      tax: 'Tax',
+      total: 'Total',
+      proceedToCheckout: 'Checkout ke liye proceed karo',
+      free: 'Free',
+      calculated: 'Checkout mein calculate hoga',
+      emptyCart: 'Aapka cart empty hai',
       emptyCartMessage:
-        "Kuch beautiful handcrafted items add karo to get started",
-      remove: "Remove",
-      quantity: "Quantity",
-      addToWishlist: "Wishlist mein add karo",
-      couponCode: "Coupon Code",
-      applyCoupon: "Coupon Apply karo",
-      orderSummary: "Order Summary",
-      secureCheckout: "Secure Checkout",
-      freeShipping: "₹999 se upar ke orders pe free shipping",
-      securePayment: "Secure payment processing",
-      returnPolicy: "30-day return policy",
+        'Kuch beautiful handcrafted items add karo to get started',
+      remove: 'Remove',
+      quantity: 'Quantity',
+      addToWishlist: 'Wishlist mein add karo',
+      couponCode: 'Coupon Code',
+      applyCoupon: 'Coupon Apply karo',
+      orderSummary: 'Order Summary',
+      secureCheckout: 'Secure Checkout',
+      freeShipping: '₹999 se upar ke orders pe free shipping',
+      securePayment: 'Secure payment processing',
+      returnPolicy: '30-day return policy',
     },
   };
 
   const t = translations[language];
 
-  // Mock cart data
-  const cartItems = [
-    {
-      id: 1,
-      title: "Handcrafted Pottery Set",
-      price: 2999,
-      originalPrice: 3999,
-      artisan: "Priya Sharma",
-      image: potteryImage,
-      quantity: 1,
-      inStock: true,
-    },
-    {
-      id: 2,
-      title: "Silk Scarf Collection",
-      price: 1599,
-      originalPrice: 2199,
-      artisan: "Arjun Kumar",
-      image: potteryImage,
-      quantity: 2,
-      inStock: true,
-    },
-  ];
+  // Cart state management
+  const [cartItems, setCartItems] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState('');
+
+  // Load cart from backend
+  useEffect(() => {
+    const loadCart = async () => {
+      if (!user) return;
+
+      try {
+        setLoading(true);
+        const cart = await getCart();
+        setCartItems(cart.items || []);
+      } catch (error) {
+        console.error('Error loading cart:', error);
+        setError('Failed to load cart');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCart();
+  }, [user]);
 
   const subtotal = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -142,14 +162,32 @@ const Cart = () => {
   const tax = Math.round(subtotal * 0.05); // 5% tax
   const totalAmount = subtotal + shipping + tax;
 
-  const updateQuantity = (id: number, newQuantity: number) => {
-    // In real app, update cart state
-    console.log(`Update item ${id} quantity to ${newQuantity}`);
+  const updateQuantity = async (
+    productId: string | number,
+    newQuantity: number
+  ) => {
+    if (newQuantity < 1) return;
+
+    try {
+      const updatedCart = await updateCartQuantity(
+        productId.toString(),
+        newQuantity
+      );
+      setCartItems(updatedCart.items || []);
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+      setError('Failed to update quantity');
+    }
   };
 
-  const removeItem = (id: number) => {
-    // In real app, remove from cart state
-    console.log(`Remove item ${id} from cart`);
+  const removeItem = async (productId: string | number) => {
+    try {
+      const updatedCart = await removeFromCart(productId.toString());
+      setCartItems(updatedCart.items || []);
+    } catch (error) {
+      console.error('Error removing item:', error);
+      setError('Failed to remove item');
+    }
   };
 
   if (cartItems.length === 0) {
@@ -210,9 +248,39 @@ const Cart = () => {
               language={language}
               onLanguageChange={setLanguage}
             />
-            <Link to="/login">
-              <Button variant="outline">Login</Button>
-            </Link>
+            {user ? (
+              // Authenticated user navigation
+              <>
+                <Link to="/dashboard">
+                  <Button
+                    variant="outline"
+                    className="flex items-center space-x-2"
+                  >
+                    <BarChart3 className="h-4 w-4" />
+                    <span>Dashboard</span>
+                  </Button>
+                </Link>
+                <Button
+                  variant="outline"
+                  onClick={handleLogout}
+                  className="flex items-center space-x-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Logout</span>
+                </Button>
+              </>
+            ) : (
+              // Non-authenticated user navigation
+              <Link to="/login">
+                <Button
+                  variant="outline"
+                  className="flex items-center space-x-2"
+                >
+                  <User className="h-4 w-4" />
+                  <span>Login</span>
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </nav>
@@ -246,7 +314,7 @@ const Cart = () => {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
-            {cartItems.map((item) => (
+            {cartItems.map(item => (
               <Card key={item.id}>
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
@@ -298,7 +366,7 @@ const Cart = () => {
                               size="sm"
                               onClick={() =>
                                 updateQuantity(
-                                  item.id,
+                                  item.productId || item.id,
                                   Math.max(1, item.quantity - 1)
                                 )
                               }
@@ -309,9 +377,9 @@ const Cart = () => {
                             <Input
                               type="number"
                               value={item.quantity}
-                              onChange={(e) =>
+                              onChange={e =>
                                 updateQuantity(
-                                  item.id,
+                                  item.productId || item.id,
                                   parseInt(e.target.value) || 1
                                 )
                               }
@@ -322,7 +390,10 @@ const Cart = () => {
                               variant="outline"
                               size="sm"
                               onClick={() =>
-                                updateQuantity(item.id, item.quantity + 1)
+                                updateQuantity(
+                                  item.productId || item.id,
+                                  item.quantity + 1
+                                )
                               }
                             >
                               <Plus className="h-3 w-3" />
@@ -337,7 +408,9 @@ const Cart = () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => removeItem(item.id)}
+                            onClick={() =>
+                              removeItem(item.productId || item.id)
+                            }
                             className="text-destructive hover:text-destructive"
                           >
                             <Trash2 className="h-4 w-4" />

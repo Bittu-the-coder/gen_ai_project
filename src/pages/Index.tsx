@@ -1,86 +1,97 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import artisanImage from '@/assets/artisan-priya.jpg';
+import heroImage from '@/assets/hero-marketplace.jpg';
+import potteryImage from '@/assets/pottery-collection.jpg';
+import { ArtisanCard } from '@/components/ArtisanCard';
+import { LanguageToggle } from '@/components/LanguageToggle';
+import { ProductCard } from '@/components/ProductCard';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { VoiceUpload } from '@/components/VoiceUpload';
+import { useAuth } from '@/contexts/AuthContext';
 import {
-  Mic,
-  Languages,
-  Star,
-  Heart,
-  ShoppingBag,
+  BarChart3,
+  LogOut,
   Menu,
-  X,
-  User,
+  Mic,
+  ShoppingBag,
   Store,
-} from "lucide-react";
-import { Link } from "react-router-dom";
-import heroImage from "@/assets/hero-marketplace.jpg";
-import artisanImage from "@/assets/artisan-priya.jpg";
-import potteryImage from "@/assets/pottery-collection.jpg";
-import { LanguageToggle } from "@/components/LanguageToggle";
-import { VoiceUpload } from "@/components/VoiceUpload";
-import { ArtisanCard } from "@/components/ArtisanCard";
-import { ProductCard } from "@/components/ProductCard";
+  User,
+  X,
+} from 'lucide-react';
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Index = () => {
   const [language, setLanguage] = React.useState<
-    "english" | "hindi" | "hinglish"
-  >("english");
+    'english' | 'hindi' | 'hinglish'
+  >('english');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   const translations = {
     english: {
       hero: {
-        title: "Voice-to-Shop",
-        subtitle: "AI-Powered Marketplace for Local Artisans",
+        title: 'Voice-to-Shop',
+        subtitle: 'AI-Powered Marketplace for Local Artisans',
         description:
-          "Empowering artisans to sell globally with just a voice note. AI creates your product story, descriptions, and social media content in 60 seconds.",
+          'Empowering artisans to sell globally with just a voice note. AI creates your product story, descriptions, and social media content in 60 seconds.',
       },
       nav: {
-        home: "Home",
-        marketplace: "Marketplace",
-        login: "Login",
-        sellNow: "Sell Now",
-        browseMarketplace: "Browse Marketplace",
+        home: 'Home',
+        marketplace: 'Marketplace',
+        login: 'Login',
+        sellNow: 'Sell Now',
+        browseMarketplace: 'Browse Marketplace',
       },
-      cta: "Start Selling with Voice",
-      featured: "Featured Artisans",
-      products: "Latest Products",
+      cta: 'Start Selling with Voice',
+      featured: 'Featured Artisans',
+      products: 'Latest Products',
     },
     hindi: {
       hero: {
-        title: "आवाज़-से-दुकान",
-        subtitle: "स्थानीय कारीगरों के लिए AI-संचालित बाज़ार",
+        title: 'आवाज़-से-दुकान',
+        subtitle: 'स्थानीय कारीगरों के लिए AI-संचालित बाज़ार',
         description:
-          "कारीगरों को केवल एक आवाज़ के नोट से विश्वव्यापी बिक्री में सशक्त बनाना। AI 60 सेकंड में आपकी उत्पाद कहानी, विवरण और सोशल मीडिया सामग्री बनाता है।",
+          'कारीगरों को केवल एक आवाज़ के नोट से विश्वव्यापी बिक्री में सशक्त बनाना। AI 60 सेकंड में आपकी उत्पाद कहानी, विवरण और सोशल मीडिया सामग्री बनाता है।',
       },
       nav: {
-        home: "होम",
-        marketplace: "बाज़ार",
-        login: "लॉगिन",
-        sellNow: "अभी बेचें",
-        browseMarketplace: "बाज़ार देखें",
+        home: 'होम',
+        marketplace: 'बाज़ार',
+        login: 'लॉगिन',
+        sellNow: 'अभी बेचें',
+        browseMarketplace: 'बाज़ार देखें',
       },
-      cta: "आवाज़ के साथ बेचना शुरू करें",
-      featured: "विशेष कारीगर",
-      products: "नवीनतम उत्पाद",
+      cta: 'आवाज़ के साथ बेचना शुरू करें',
+      featured: 'विशेष कारीगर',
+      products: 'नवीनतम उत्पाद',
     },
     hinglish: {
       hero: {
-        title: "Voice-to-Shop",
-        subtitle: "Local Artisans ke liye AI-powered Marketplace",
+        title: 'Voice-to-Shop',
+        subtitle: 'Local Artisans ke liye AI-powered Marketplace',
         description:
-          "Artisans ko sirf ek voice note se global selling mein empower karna. AI 60 seconds mein aapki product story, descriptions aur social media content banata hai.",
+          'Artisans ko sirf ek voice note se global selling mein empower karna. AI 60 seconds mein aapki product story, descriptions aur social media content banata hai.',
       },
       nav: {
-        home: "Home",
-        marketplace: "Marketplace",
-        login: "Login",
-        sellNow: "Sell Now",
-        browseMarketplace: "Browse Marketplace",
+        home: 'Home',
+        marketplace: 'Marketplace',
+        login: 'Login',
+        sellNow: 'Sell Now',
+        browseMarketplace: 'Browse Marketplace',
       },
-      cta: "Voice ke saath selling start karo",
-      featured: "Featured Artisans",
-      products: "Latest Products",
+      cta: 'Voice ke saath selling start karo',
+      featured: 'Featured Artisans',
+      products: 'Latest Products',
     },
   };
 
@@ -115,18 +126,56 @@ const Index = () => {
               language={language}
               onLanguageChange={setLanguage}
             />
-            <Link to="/login">
-              <Button variant="outline" className="flex items-center space-x-2">
-                <User className="h-4 w-4" />
-                <span>{t.nav.login}</span>
-              </Button>
-            </Link>
-            <Link to="/upload">
-              <Button className="bg-gradient-to-r from-primary to-primary-glow hover:shadow-lg transition-all duration-300">
-                <Mic className="h-4 w-4 mr-2" />
-                {t.nav.sellNow}
-              </Button>
-            </Link>
+            {user ? (
+              // Authenticated user navigation
+              <>
+                <Link to="/cart">
+                  <Button
+                    variant="ghost"
+                    className="flex items-center space-x-2"
+                  >
+                    <ShoppingBag className="h-4 w-4" />
+                    <span>Cart</span>
+                  </Button>
+                </Link>
+                <Link to="/dashboard">
+                  <Button
+                    variant="ghost"
+                    className="flex items-center space-x-2"
+                  >
+                    <BarChart3 className="h-4 w-4" />
+                    <span>Dashboard</span>
+                  </Button>
+                </Link>
+                <Button
+                  variant="outline"
+                  onClick={handleLogout}
+                  className="flex items-center space-x-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Logout</span>
+                </Button>
+              </>
+            ) : (
+              // Non-authenticated user navigation
+              <>
+                <Link to="/login">
+                  <Button
+                    variant="outline"
+                    className="flex items-center space-x-2"
+                  >
+                    <User className="h-4 w-4" />
+                    <span>{t.nav.login}</span>
+                  </Button>
+                </Link>
+                <Link to="/upload">
+                  <Button className="bg-gradient-to-r from-primary to-primary-glow hover:shadow-lg transition-all duration-300">
+                    <Mic className="h-4 w-4 mr-2" />
+                    {t.nav.sellNow}
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -172,21 +221,68 @@ const Index = () => {
                     <span>{t.nav.marketplace}</span>
                   </Button>
                 </Link>
-                <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start flex items-center space-x-2"
-                  >
-                    <User className="h-4 w-4" />
-                    <span>{t.nav.login}</span>
-                  </Button>
-                </Link>
-                <Link to="/upload" onClick={() => setIsMobileMenuOpen(false)}>
-                  <Button className="w-full bg-gradient-to-r from-primary to-primary-glow">
-                    <Mic className="h-4 w-4 mr-2" />
-                    {t.nav.sellNow}
-                  </Button>
-                </Link>
+                {user ? (
+                  // Authenticated user mobile navigation
+                  <>
+                    <Link to="/cart" onClick={() => setIsMobileMenuOpen(false)}>
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start flex items-center space-x-2"
+                      >
+                        <ShoppingBag className="h-4 w-4" />
+                        <span>Cart</span>
+                      </Button>
+                    </Link>
+                    <Link
+                      to="/dashboard"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start flex items-center space-x-2"
+                      >
+                        <BarChart3 className="h-4 w-4" />
+                        <span>Dashboard</span>
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        handleLogout();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="w-full justify-start flex items-center space-x-2"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      <span>Logout</span>
+                    </Button>
+                  </>
+                ) : (
+                  // Non-authenticated user mobile navigation
+                  <>
+                    <Link
+                      to="/login"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start flex items-center space-x-2"
+                      >
+                        <User className="h-4 w-4" />
+                        <span>{t.nav.login}</span>
+                      </Button>
+                    </Link>
+                    <Link
+                      to="/upload"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Button className="w-full bg-gradient-to-r from-primary to-primary-glow">
+                        <Mic className="h-4 w-4 mr-2" />
+                        {t.nav.sellNow}
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>

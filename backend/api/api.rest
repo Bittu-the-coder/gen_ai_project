@@ -1,0 +1,270 @@
+### VoiceCraft Market API Tests
+### Base URL: http://localhost:8080/api/v1
+
+@baseUrl = http://localhost:8080/api/v1
+@testEmail = bittuatwork169@gmail.com
+
+# You need to get a Firebase ID token first
+# Login via the frontend at http://localhost:5173/login
+# Then check localStorage.authToken or use browser DevTools
+@authToken = YOUR_FIREBASE_TOKEN_HERE
+
+###############################################
+# 1. HEALTH CHECK (Public)
+###############################################
+
+### Health Check
+GET {{baseUrl}}/health
+Content-Type: application/json
+
+###############################################
+# 2. PRODUCTS (Public)
+###############################################
+
+### Get All Products
+GET {{baseUrl}}/products
+Content-Type: application/json
+
+### Get Products with Pagination
+GET {{baseUrl}}/products?page=1&limit=10
+Content-Type: application/json
+
+### Get Single Product (replace with actual product ID)
+GET {{baseUrl}}/products/PRODUCT_ID_HERE
+Content-Type: application/json
+
+### Search Products
+GET {{baseUrl}}/products/search?q=pottery&category=home-decor
+Content-Type: application/json
+
+### Get Products by Artisan (replace with actual artisan ID)
+GET {{baseUrl}}/artisans/ARTISAN_ID_HERE/products
+Content-Type: application/json
+
+###############################################
+# 3. ARTISANS (Public)
+###############################################
+
+### Get All Artisans
+GET {{baseUrl}}/artisans
+Content-Type: application/json
+
+### Get All Artisans with Pagination
+GET {{baseUrl}}/artisans?page=1&limit=10
+Content-Type: application/json
+
+### Get Single Artisan (replace with actual artisan ID)
+GET {{baseUrl}}/artisans/ARTISAN_ID_HERE
+Content-Type: application/json
+
+###############################################
+# 4. VOICE PROCESSING (Public)
+###############################################
+
+### Transcribe Audio (requires audio file)
+POST {{baseUrl}}/voice/transcribe
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="audio"; filename="test.mp3"
+Content-Type: audio/mpeg
+
+< ./path/to/audio/file.mp3
+------WebKitFormBoundary--
+
+### Generate Product from Voice (requires transcription)
+POST {{baseUrl}}/voice/generate
+Content-Type: application/json
+
+{
+  "transcription": "I make beautiful handcrafted pottery bowls using traditional methods",
+  "language": "english",
+  "artisan_id": "YOUR_ARTISAN_ID"
+}
+
+###############################################
+# 5. USER PROFILE (Authenticated)
+###############################################
+
+### Get User Profile (requires auth token)
+GET {{baseUrl}}/profile
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+### Update User Profile (requires auth token)
+PUT {{baseUrl}}/profile
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "name": "Bittu Kumar",
+  "phone": "+91 9876543210",
+  "language": "hinglish"
+}
+
+###############################################
+# 6. ORDERS (Authenticated)
+###############################################
+
+### Get User Orders
+GET {{baseUrl}}/orders
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+### Create Order
+POST {{baseUrl}}/orders
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "items": [
+    {
+      "product_id": "PRODUCT_ID_HERE",
+      "quantity": 2,
+      "price": 2999
+    }
+  ],
+  "shipping_address": {
+    "name": "Bittu Kumar",
+    "phone": "+91 9876543210",
+    "address_line1": "123 Main Street",
+    "city": "Mumbai",
+    "state": "Maharashtra",
+    "postal_code": "400001",
+    "country": "India"
+  },
+  "payment_method": "cod"
+}
+
+### Get Single Order (replace with actual order ID)
+GET {{baseUrl}}/orders/ORDER_ID_HERE
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+### Cancel Order
+PUT {{baseUrl}}/orders/ORDER_ID_HERE/cancel
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+###############################################
+# 7. ARTISAN ROUTES (Authenticated + Artisan Role)
+###############################################
+
+### Get Artisan Profile
+GET {{baseUrl}}/artisan/profile
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+### Update Artisan Profile
+PUT {{baseUrl}}/artisan/profile
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "craft": "Pottery",
+  "location": "Jaipur, Rajasthan",
+  "bio": "Creating beautiful pottery for over 15 years",
+  "story": "I learned this craft from my grandfather...",
+  "specialties": ["Pottery", "Clay Work", "Traditional Designs"],
+  "years_experience": 15
+}
+
+### Upload Artisan Avatar (requires image file)
+POST {{baseUrl}}/artisan/profile/avatar
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+Authorization: Bearer {{authToken}}
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="avatar"; filename="avatar.jpg"
+Content-Type: image/jpeg
+
+< ./path/to/avatar.jpg
+------WebKitFormBoundary--
+
+### Get Artisan's Products
+GET {{baseUrl}}/artisan/products
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+### Create Product (Artisan)
+POST {{baseUrl}}/artisan/products
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "title": "Handcrafted Pottery Bowl",
+  "description": "Beautiful handmade pottery bowl with traditional designs",
+  "price": 2999,
+  "currency": "INR",
+  "category": "home-decor",
+  "stock": 10,
+  "materials": ["Clay", "Natural Glaze"],
+  "crafting_time": "3-5 days",
+  "tags": ["pottery", "handmade", "traditional"]
+}
+
+### Update Product (replace with actual product ID)
+PUT {{baseUrl}}/artisan/products/PRODUCT_ID_HERE
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "price": 3499,
+  "stock": 8,
+  "status": "active"
+}
+
+### Delete Product (replace with actual product ID)
+DELETE {{baseUrl}}/artisan/products/PRODUCT_ID_HERE
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+### Upload Product Images (requires image files)
+POST {{baseUrl}}/artisan/products/PRODUCT_ID_HERE/images
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary
+Authorization: Bearer {{authToken}}
+
+------WebKitFormBoundary
+Content-Disposition: form-data; name="images"; filename="product1.jpg"
+Content-Type: image/jpeg
+
+< ./path/to/product1.jpg
+------WebKitFormBoundary--
+
+### Get Artisan's Orders
+GET {{baseUrl}}/artisan/orders
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+### Update Order Status (replace with actual order ID)
+PUT {{baseUrl}}/artisan/orders/ORDER_ID_HERE/status
+Content-Type: application/json
+Authorization: Bearer {{authToken}}
+
+{
+  "status": "processing"
+}
+
+###############################################
+# INSTRUCTIONS TO GET AUTH TOKEN
+###############################################
+
+# 1. Go to http://localhost:5173/login
+# 2. Login with: bittuatwork169@gmail.com
+# 3. Open Browser DevTools (F12)
+# 4. Go to Console tab
+# 5. Type: localStorage.getItem('authToken')
+# 6. Copy the token (without quotes)
+# 7. Replace {{authToken}} above with your actual token
+# 8. Or set it in REST Client variables
+
+###############################################
+# QUICK TEST SEQUENCE
+###############################################
+
+# Test this sequence after getting your auth token:
+# 1. Health Check ✓
+# 2. Get Products ✓
+# 3. Get Profile (with token)
+# 4. Update Profile (with token)
+# 5. Create Product (if artisan)

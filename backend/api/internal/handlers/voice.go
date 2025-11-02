@@ -12,13 +12,13 @@ import (
 )
 
 type VoiceHandler struct {
-	speechService    *services.SpeechService
-	aiService        *services.AIService
+	speechService    *services.SpeechToTextService
+	aiService        *services.VertexAIService
 	firestoreService *services.FirestoreService
 	storageService   *services.StorageService
 }
 
-func NewVoiceHandler(speechService *services.SpeechService, aiService *services.AIService, firestoreService *services.FirestoreService, storageService *services.StorageService) *VoiceHandler {
+func NewVoiceHandler(speechService *services.SpeechToTextService, aiService *services.VertexAIService, firestoreService *services.FirestoreService, storageService *services.StorageService) *VoiceHandler {
 	return &VoiceHandler{
 		speechService:    speechService,
 		aiService:        aiService,
@@ -53,15 +53,17 @@ func (h *VoiceHandler) TranscribeAudio(c *gin.Context) {
 	}
 
 	// Transcribe audio
-	text, confidence, err := h.speechService.TranscribeAudio(audioData, header.Header.Get("Content-Type"))
+	result, err := h.speechService.TranscribeAudio(audioData, "en-US")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to transcribe audio"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"text":       text,
-		"confidence": confidence,
+		"text":       result.Transcript,
+		"confidence": result.Confidence,
+		"language":   result.Language,
+		"duration":   result.Duration,
 	})
 }
 
@@ -89,12 +91,12 @@ func (h *VoiceHandler) GenerateProduct(c *gin.Context) {
 		}
 
 		// Transcribe audio
-		text, _, err := h.speechService.TranscribeAudio(audioData, "audio/mp3")
+		result, err := h.speechService.TranscribeAudio(audioData, "en-US")
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to transcribe audio"})
 			return
 		}
-		description = text
+		description = result.Transcript
 	} else if request.Text != "" {
 		description = request.Text
 	} else {
@@ -103,7 +105,10 @@ func (h *VoiceHandler) GenerateProduct(c *gin.Context) {
 	}
 
 	// Generate product details using AI
-	productInfo, err := h.aiService.GenerateProductListing(description)
+	productInfo, err := h.aiService.GenerateProductContent(&services.ProductGenerationRequest{
+		Transcript: description,
+		Language:   "english",
+	})
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate product listing"})
 		return

@@ -14,10 +14,10 @@ import (
 type ProductHandler struct {
 	firestoreService *services.FirestoreService
 	storageService   *services.StorageService
-	aiService        *services.AIService
+	aiService        *services.VertexAIService
 }
 
-func NewProductHandler(firestoreService *services.FirestoreService, storageService *services.StorageService, aiService *services.AIService) *ProductHandler {
+func NewProductHandler(firestoreService *services.FirestoreService, storageService *services.StorageService, aiService *services.VertexAIService) *ProductHandler {
 	return &ProductHandler{
 		firestoreService: firestoreService,
 		storageService:   storageService,
@@ -118,7 +118,7 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 	}
 
 	// Validate required fields
-	if product.Name == "" || product.Description == "" || product.Price <= 0 {
+	if product.Title == "" || product.Description == "" || product.Price <= 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Name, description, and price are required"})
 		return
 	}
@@ -392,40 +392,30 @@ func (h *ProductHandler) SearchProducts(c *gin.Context) {
 
 	offset := (page - 1) * limit
 
-	// Use AI service for semantic search
-	results, err := h.aiService.SearchProducts(query, limit, offset)
+	// TODO: Implement AI semantic search
+	// For now, use basic text search
+	filters := map[string]interface{}{
+		"search": query,
+	}
+
+	products, total, err := h.firestoreService.GetProductsWithFilters(filters, "created_at", "desc", limit, offset)
 	if err != nil {
-		// Fallback to basic text search
-		filters := map[string]interface{}{
-			"search": query,
-		}
-
-		products, total, err := h.firestoreService.GetProductsWithFilters(filters, "created_at", "desc", limit, offset)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to search products"})
-			return
-		}
-
-		totalPages := (total + limit - 1) / limit
-
-		c.JSON(http.StatusOK, gin.H{
-			"products": products,
-			"pagination": gin.H{
-				"page":        page,
-				"limit":       limit,
-				"total":       total,
-				"total_pages": totalPages,
-				"has_next":    page < totalPages,
-				"has_prev":    page > 1,
-			},
-			"search_type": "text",
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to search products"})
 		return
 	}
 
+	totalPages := (total + limit - 1) / limit
+
 	c.JSON(http.StatusOK, gin.H{
-		"products":    results,
-		"search_type": "semantic",
-		"query":       query,
+		"products": products,
+		"pagination": gin.H{
+			"page":        page,
+			"limit":       limit,
+			"total":       total,
+			"total_pages": totalPages,
+			"has_next":    page < totalPages,
+			"has_prev":    page > 1,
+		},
+		"search_type": "text",
 	})
 }

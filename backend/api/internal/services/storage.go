@@ -134,16 +134,13 @@ func (s *StorageService) GetFileURL(fileName, bucketName string, expiry time.Dur
 		bucketName = s.bucketName
 	}
 
-	bucket := s.client.Bucket(bucketName)
-	obj := bucket.Object(fileName)
-
 	opts := &storage.SignedURLOptions{
 		Scheme:  storage.SigningSchemeV4,
 		Method:  "GET",
 		Expires: time.Now().Add(expiry),
 	}
 
-	url, err := obj.SignedURL(opts)
+	url, err := storage.SignedURL(bucketName, fileName, opts)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate signed URL: %v", err)
 	}
@@ -159,16 +156,19 @@ func (s *StorageService) ListFiles(bucketName, prefix string, maxResults int) ([
 
 	bucket := s.client.Bucket(bucketName)
 	query := &storage.Query{
-		Prefix:     prefix,
-		MaxResults: maxResults,
-		Delimiter:  "/",
-		Versions:   false,
+		Prefix:    prefix,
+		Delimiter: "/",
+		Versions:  false,
 	}
 
 	var objects []*storage.ObjectAttrs
 	it := bucket.Objects(s.ctx, query)
 
+	count := 0
 	for {
+		if maxResults > 0 && count >= maxResults {
+			break
+		}
 		obj, err := it.Next()
 		if err == storage.ErrObjectNotExist {
 			break
@@ -177,6 +177,7 @@ func (s *StorageService) ListFiles(bucketName, prefix string, maxResults int) ([
 			return nil, fmt.Errorf("failed to list objects: %v", err)
 		}
 		objects = append(objects, obj)
+		count++
 	}
 
 	return objects, nil
@@ -262,9 +263,6 @@ func (s *StorageService) GenerateUploadURL(fileName, bucketName, contentType str
 		bucketName = s.bucketName
 	}
 
-	bucket := s.client.Bucket(bucketName)
-	obj := bucket.Object(fileName)
-
 	opts := &storage.SignedURLOptions{
 		Scheme:      storage.SigningSchemeV4,
 		Method:      "PUT",
@@ -272,7 +270,7 @@ func (s *StorageService) GenerateUploadURL(fileName, bucketName, contentType str
 		ContentType: contentType,
 	}
 
-	url, err := obj.SignedURL(opts)
+	url, err := storage.SignedURL(bucketName, fileName, opts)
 	if err != nil {
 		return "", fmt.Errorf("failed to generate upload URL: %v", err)
 	}

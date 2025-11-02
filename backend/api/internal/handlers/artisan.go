@@ -144,13 +144,11 @@ func (h *ArtisanHandler) UpdateArtisanProfile(c *gin.Context) {
 	existingArtisan, err := h.firestoreService.GetArtisan(userID)
 	if err != nil {
 		// Create new artisan profile
-		artisan := models.ArtisanProfile{
-			UserID: userID,
-		}
+		artisan := models.ArtisanProfile{}
 
 		// Apply updates to new profile
-		if name, ok := updates["name"]; ok {
-			artisan.Name = name.(string)
+		if craft, ok := updates["craft"]; ok {
+			artisan.Craft = craft.(string)
 		}
 		if bio, ok := updates["bio"]; ok {
 			artisan.Bio = bio.(string)
@@ -158,11 +156,11 @@ func (h *ArtisanHandler) UpdateArtisanProfile(c *gin.Context) {
 		if location, ok := updates["location"]; ok {
 			artisan.Location = location.(string)
 		}
-		if specializations, ok := updates["specializations"]; ok {
-			if specArray, ok := specializations.([]interface{}); ok {
-				artisan.Specializations = make([]string, len(specArray))
+		if specialties, ok := updates["specialties"]; ok {
+			if specArray, ok := specialties.([]interface{}); ok {
+				artisan.Specialties = make([]string, len(specArray))
 				for i, spec := range specArray {
-					artisan.Specializations[i] = spec.(string)
+					artisan.Specialties[i] = spec.(string)
 				}
 			}
 		}

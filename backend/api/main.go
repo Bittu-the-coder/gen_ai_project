@@ -22,16 +22,13 @@ import (
 
 func main() {
 	// Load configuration
-	cfg, err := config.Load()
-	if err != nil {
-		log.Fatalf("Failed to load config: %v", err)
-	}
+	cfg := config.Load()
 
 	// Initialize context
 	ctx := context.Background()
 
 	// Initialize Firebase
-	opt := option.WithCredentialsFile(cfg.FirebaseCredentialsFile)
+	opt := option.WithCredentialsFile(cfg.GoogleApplicationCredentials)
 	app, err := firebase.NewApp(ctx, nil, opt)
 	if err != nil {
 		log.Fatalf("Failed to initialize Firebase app: %v", err)
@@ -50,26 +47,26 @@ func main() {
 	}
 
 	// Initialize Firestore
-	firestoreService, err := services.NewFirestoreService(ctx, cfg.ProjectID)
+	firestoreService, err := services.NewFirestoreService(ctx, cfg.GoogleProjectID)
 	if err != nil {
 		log.Fatalf("Failed to initialize Firestore: %v", err)
 	}
 	defer firestoreService.Close()
 
 	// Initialize services
-	storageService, err := services.NewStorageService(ctx, cfg.StorageBucket, cfg.AudioBucket, cfg.ImageBucket)
+	storageService, err := services.NewStorageService(ctx, cfg.GCSBucketName, cfg.GCSBucketAudio, cfg.GCSBucketImages)
 	if err != nil {
 		log.Fatalf("Failed to initialize Storage service: %v", err)
 	}
 	defer storageService.Close()
 
-	speechService, err := services.NewSpeechService(ctx, cfg.ProjectID)
+	speechService, err := services.NewSpeechToTextService(ctx)
 	if err != nil {
 		log.Fatalf("Failed to initialize Speech service: %v", err)
 	}
 	defer speechService.Close()
 
-	aiService, err := services.NewAIService(ctx, cfg.ProjectID, cfg.Location)
+	aiService, err := services.NewVertexAIService(ctx, cfg.GoogleProjectID, cfg.VertexAILocation, cfg.VertexAIModel)
 	if err != nil {
 		log.Fatalf("Failed to initialize AI service: %v", err)
 	}
@@ -85,7 +82,7 @@ func main() {
 	orderHandler := handlers.NewOrderHandler(firestoreService, notificationService)
 
 	// Setup Gin router
-	if cfg.Environment == "production" {
+	if cfg.GinMode == "release" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
@@ -116,7 +113,7 @@ func main() {
 		v1.GET("/products", productHandler.GetProducts)
 		v1.GET("/products/:id", productHandler.GetProduct)
 		v1.GET("/products/search", productHandler.SearchProducts)
-		v1.GET("/artisans/:artisan_id/products", productHandler.GetProductsByArtisan)
+		v1.GET("/artisans/:id/products", productHandler.GetProductsByArtisan)
 
 		// Public artisan routes
 		v1.GET("/artisans", artisanHandler.GetArtisans)
@@ -128,7 +125,7 @@ func main() {
 	}
 
 	// Authentication required routes
-	auth := v1.Group("/")
+	auth := v1.Group("")
 	auth.Use(middleware.AuthMiddleware(authClient))
 	{
 		// User profile

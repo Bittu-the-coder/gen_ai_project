@@ -1,213 +1,213 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
+import potteryImage from '@/assets/pottery-collection.jpg';
+import { LanguageToggle } from '@/components/LanguageToggle';
+import ProfileEditor from '@/components/ProfileEditor';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAuth } from '@/contexts/AuthContext';
 import {
-  Mic,
-  Plus,
-  TrendingUp,
-  Package,
-  Users,
-  Star,
-  Eye,
-  Heart,
-  ShoppingBag,
-  BarChart3,
-  Calendar,
-  Edit,
-  ArrowUp,
-  ArrowDown,
-  IndianRupee,
-  MapPin,
-  Store,
-  User,
-  Menu,
-  X,
-  Home,
-  LogOut,
-} from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import { LanguageToggle } from "@/components/LanguageToggle";
-import {
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  AreaChart,
-  Area,
-} from "recharts";
-import {
-  demoProducts,
   demoAnalytics,
-  demoOrders,
   getDemoProductsForArtisan,
   isDemoMode,
   setDemoMode,
-} from "@/services/demoData";
-import potteryImage from "@/assets/pottery-collection.jpg";
+} from '@/services/demoData';
+import {
+  ArrowUp,
+  BarChart3,
+  Edit,
+  Eye,
+  Heart,
+  Home,
+  IndianRupee,
+  LogOut,
+  Menu,
+  Mic,
+  Package,
+  Plus,
+  ShoppingBag,
+  Star,
+  Store,
+  Users,
+  X,
+} from 'lucide-react';
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 
 const Dashboard = () => {
   const [language, setLanguage] = React.useState<
-    "english" | "hindi" | "hinglish"
-  >("english");
+    'english' | 'hindi' | 'hinglish'
+  >('english');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
-  const handleLogout = () => {
-    setDemoMode(false);
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setDemoMode(false);
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   const translations = {
     english: {
-      dashboard: "Artisan Dashboard",
-      welcome: "Welcome back, Priya!",
-      overview: "Overview",
-      products: "Products",
-      analytics: "Analytics",
-      profile: "Profile",
-      addProduct: "Add New Product",
-      totalProducts: "Total Products",
-      totalSales: "Total Sales",
-      followers: "Followers",
-      rating: "Average Rating",
-      recentProducts: "Recent Products",
-      salesThisMonth: "Sales This Month",
-      viewsThisWeek: "Views This Week",
-      pendingOrders: "Pending Orders",
-      completedOrders: "Completed Orders",
-      revenue: "Revenue",
-      growth: "vs last month",
-      edit: "Edit",
-      delete: "Delete",
-      active: "Active",
-      draft: "Draft",
-      outOfStock: "Out of Stock",
-      revenueChart: "Revenue Trends",
-      categoryPerformance: "Category Performance",
-      topProducts: "Top Selling Products",
-      orderStatus: "Order Status",
-      customerDemographics: "Customer Demographics",
-      monthlyViews: "Monthly Views & Visitors",
-      conversionRate: "Conversion Rate",
-      avgOrderValue: "Average Order Value",
-      returnCustomers: "Return Customers",
-      salesByLocation: "Sales by Location",
-      ratingDistribution: "Rating Distribution",
-      thisMonth: "This Month",
-      lastMonth: "Last Month",
-      daily: "Daily",
-      weekly: "Weekly",
-      monthly: "Monthly",
+      dashboard: 'Artisan Dashboard',
+      welcome: 'Welcome back, Priya!',
+      overview: 'Overview',
+      products: 'Products',
+      analytics: 'Analytics',
+      profile: 'Profile',
+      addProduct: 'Add New Product',
+      totalProducts: 'Total Products',
+      totalSales: 'Total Sales',
+      followers: 'Followers',
+      rating: 'Average Rating',
+      recentProducts: 'Recent Products',
+      salesThisMonth: 'Sales This Month',
+      viewsThisWeek: 'Views This Week',
+      pendingOrders: 'Pending Orders',
+      completedOrders: 'Completed Orders',
+      revenue: 'Revenue',
+      growth: 'vs last month',
+      edit: 'Edit',
+      delete: 'Delete',
+      active: 'Active',
+      draft: 'Draft',
+      outOfStock: 'Out of Stock',
+      revenueChart: 'Revenue Trends',
+      categoryPerformance: 'Category Performance',
+      topProducts: 'Top Selling Products',
+      orderStatus: 'Order Status',
+      customerDemographics: 'Customer Demographics',
+      monthlyViews: 'Monthly Views & Visitors',
+      conversionRate: 'Conversion Rate',
+      avgOrderValue: 'Average Order Value',
+      returnCustomers: 'Return Customers',
+      salesByLocation: 'Sales by Location',
+      ratingDistribution: 'Rating Distribution',
+      thisMonth: 'This Month',
+      lastMonth: 'Last Month',
+      daily: 'Daily',
+      weekly: 'Weekly',
+      monthly: 'Monthly',
       nav: {
-        home: "Home",
-        marketplace: "Marketplace",
-        dashboard: "Dashboard",
-        logout: "Logout",
+        home: 'Home',
+        marketplace: 'Marketplace',
+        dashboard: 'Dashboard',
+        logout: 'Logout',
       },
     },
     hindi: {
-      dashboard: "कारीगर डैशबोर्ड",
-      welcome: "वापसी पर स्वागत है, प्रिया!",
-      overview: "सिंहावलोकन",
-      products: "उत्पाद",
-      analytics: "विश्लेषण",
-      profile: "प्रोफ़ाइल",
-      addProduct: "नया उत्पाद जोड़ें",
-      totalProducts: "कुल उत्पाद",
-      totalSales: "कुल बिक्री",
-      followers: "फॉलोअर्स",
-      rating: "औसत रेटिंग",
-      recentProducts: "हाल के उत्पाद",
-      salesThisMonth: "इस महीने की बिक्री",
-      viewsThisWeek: "इस सप्ताह के दृश्य",
-      pendingOrders: "लंबित आदेश",
-      completedOrders: "पूर्ण आदेश",
-      revenue: "आय",
-      growth: "पिछले महीने की तुलना में",
-      edit: "संपादित करें",
-      delete: "मिटाएं",
-      active: "सक्रिय",
-      draft: "मसौदा",
-      outOfStock: "स्टॉक में नहीं",
-      revenueChart: "आय रुझान",
-      categoryPerformance: "श्रेणी प्रदर्शन",
-      topProducts: "सबसे ज्यादा बिकने वाले उत्पाद",
-      orderStatus: "आदेश स्थिति",
-      customerDemographics: "ग्राहक जनसांख्यिकी",
-      monthlyViews: "मासिक दृश्य और आगंतुक",
-      conversionRate: "रूपांतरण दर",
-      avgOrderValue: "औसत आदेश मूल्य",
-      returnCustomers: "वापसी ग्राहक",
-      salesByLocation: "स्थान के अनुसार बिक्री",
-      ratingDistribution: "रेटिंग वितरण",
-      thisMonth: "इस महीने",
-      lastMonth: "पिछला महीना",
-      daily: "दैनिक",
-      weekly: "साप्ताहिक",
-      monthly: "मासिक",
+      dashboard: 'कारीगर डैशबोर्ड',
+      welcome: 'वापसी पर स्वागत है, प्रिया!',
+      overview: 'सिंहावलोकन',
+      products: 'उत्पाद',
+      analytics: 'विश्लेषण',
+      profile: 'प्रोफ़ाइल',
+      addProduct: 'नया उत्पाद जोड़ें',
+      totalProducts: 'कुल उत्पाद',
+      totalSales: 'कुल बिक्री',
+      followers: 'फॉलोअर्स',
+      rating: 'औसत रेटिंग',
+      recentProducts: 'हाल के उत्पाद',
+      salesThisMonth: 'इस महीने की बिक्री',
+      viewsThisWeek: 'इस सप्ताह के दृश्य',
+      pendingOrders: 'लंबित आदेश',
+      completedOrders: 'पूर्ण आदेश',
+      revenue: 'आय',
+      growth: 'पिछले महीने की तुलना में',
+      edit: 'संपादित करें',
+      delete: 'मिटाएं',
+      active: 'सक्रिय',
+      draft: 'मसौदा',
+      outOfStock: 'स्टॉक में नहीं',
+      revenueChart: 'आय रुझान',
+      categoryPerformance: 'श्रेणी प्रदर्शन',
+      topProducts: 'सबसे ज्यादा बिकने वाले उत्पाद',
+      orderStatus: 'आदेश स्थिति',
+      customerDemographics: 'ग्राहक जनसांख्यिकी',
+      monthlyViews: 'मासिक दृश्य और आगंतुक',
+      conversionRate: 'रूपांतरण दर',
+      avgOrderValue: 'औसत आदेश मूल्य',
+      returnCustomers: 'वापसी ग्राहक',
+      salesByLocation: 'स्थान के अनुसार बिक्री',
+      ratingDistribution: 'रेटिंग वितरण',
+      thisMonth: 'इस महीने',
+      lastMonth: 'पिछला महीना',
+      daily: 'दैनिक',
+      weekly: 'साप्ताहिक',
+      monthly: 'मासिक',
       nav: {
-        home: "होम",
-        marketplace: "बाज़ार",
-        dashboard: "डैशबोर्ड",
-        logout: "लॉगआउट",
+        home: 'होम',
+        marketplace: 'बाज़ार',
+        dashboard: 'डैशबोर्ड',
+        logout: 'लॉगआउट',
       },
     },
     hinglish: {
-      dashboard: "Artisan Dashboard",
-      welcome: "Welcome back, Priya!",
-      overview: "Overview",
-      products: "Products",
-      analytics: "Analytics",
-      profile: "Profile",
-      addProduct: "New Product add karo",
-      totalProducts: "Total Products",
-      totalSales: "Total Sales",
-      followers: "Followers",
-      rating: "Average Rating",
-      recentProducts: "Recent Products",
-      salesThisMonth: "Is mahine ki Sales",
-      viewsThisWeek: "Is week ke Views",
-      pendingOrders: "Pending Orders",
-      completedOrders: "Completed Orders",
-      revenue: "Revenue",
-      growth: "last month se",
-      edit: "Edit",
-      delete: "Delete",
-      active: "Active",
-      draft: "Draft",
-      outOfStock: "Out of Stock",
-      revenueChart: "Revenue ka Chart",
-      categoryPerformance: "Category Performance",
-      topProducts: "Top Selling Products",
-      orderStatus: "Order Status",
-      customerDemographics: "Customer Demographics",
-      monthlyViews: "Monthly Views aur Visitors",
-      conversionRate: "Conversion Rate",
-      avgOrderValue: "Average Order Value",
-      returnCustomers: "Return Customers",
-      salesByLocation: "Location wise Sales",
-      ratingDistribution: "Rating Distribution",
-      thisMonth: "Is month",
-      lastMonth: "Last month",
-      daily: "Daily",
-      weekly: "Weekly",
-      monthly: "Monthly",
+      dashboard: 'Artisan Dashboard',
+      welcome: 'Welcome back, Priya!',
+      overview: 'Overview',
+      products: 'Products',
+      analytics: 'Analytics',
+      profile: 'Profile',
+      addProduct: 'New Product add karo',
+      totalProducts: 'Total Products',
+      totalSales: 'Total Sales',
+      followers: 'Followers',
+      rating: 'Average Rating',
+      recentProducts: 'Recent Products',
+      salesThisMonth: 'Is mahine ki Sales',
+      viewsThisWeek: 'Is week ke Views',
+      pendingOrders: 'Pending Orders',
+      completedOrders: 'Completed Orders',
+      revenue: 'Revenue',
+      growth: 'last month se',
+      edit: 'Edit',
+      delete: 'Delete',
+      active: 'Active',
+      draft: 'Draft',
+      outOfStock: 'Out of Stock',
+      revenueChart: 'Revenue ka Chart',
+      categoryPerformance: 'Category Performance',
+      topProducts: 'Top Selling Products',
+      orderStatus: 'Order Status',
+      customerDemographics: 'Customer Demographics',
+      monthlyViews: 'Monthly Views aur Visitors',
+      conversionRate: 'Conversion Rate',
+      avgOrderValue: 'Average Order Value',
+      returnCustomers: 'Return Customers',
+      salesByLocation: 'Location wise Sales',
+      ratingDistribution: 'Rating Distribution',
+      thisMonth: 'Is month',
+      lastMonth: 'Last month',
+      daily: 'Daily',
+      weekly: 'Weekly',
+      monthly: 'Monthly',
       nav: {
-        home: "Home",
-        marketplace: "Marketplace",
-        dashboard: "Dashboard",
-        logout: "Logout",
+        home: 'Home',
+        marketplace: 'Marketplace',
+        dashboard: 'Dashboard',
+        logout: 'Logout',
       },
     },
   };
@@ -239,8 +239,8 @@ const Dashboard = () => {
         totalSales: 892,
         followers: 1243,
         rating: 4.8,
-        revenue: "₹45,670",
-        growth: "+12%",
+        revenue: '₹45,670',
+        growth: '+12%',
         pendingOrders: 8,
         completedOrders: 156,
         conversionRate: 2.8,
@@ -251,7 +251,7 @@ const Dashboard = () => {
   const recentProducts = isDemo
     ? getDemoProductsForArtisan()
         .slice(0, 4)
-        .map((product) => ({
+        .map(product => ({
           id: product.id,
           title: product.name,
           price: `₹${product.price.toLocaleString()}`,
@@ -264,40 +264,40 @@ const Dashboard = () => {
     : [
         {
           id: 1,
-          title: "Handcrafted Pottery Set",
-          price: "₹2,999",
+          title: 'Handcrafted Pottery Set',
+          price: '₹2,999',
           image: potteryImage,
-          status: "active",
+          status: 'active',
           views: 234,
           likes: 18,
           sales: 12,
         },
         {
           id: 2,
-          title: "Terracotta Vase Collection",
-          price: "₹1,899",
+          title: 'Terracotta Vase Collection',
+          price: '₹1,899',
           image: potteryImage,
-          status: "active",
+          status: 'active',
           views: 189,
           likes: 24,
           sales: 8,
         },
         {
           id: 3,
-          title: "Ceramic Dinner Set",
-          price: "₹4,999",
+          title: 'Ceramic Dinner Set',
+          price: '₹4,999',
           image: potteryImage,
-          status: "draft",
+          status: 'draft',
           views: 45,
           likes: 3,
           sales: 0,
         },
         {
           id: 4,
-          title: "Clay Water Pitcher",
-          price: "₹599",
+          title: 'Clay Water Pitcher',
+          price: '₹599',
           image: potteryImage,
-          status: "outOfStock",
+          status: 'outOfStock',
           views: 67,
           likes: 9,
           sales: 15,
@@ -305,36 +305,36 @@ const Dashboard = () => {
       ];
 
   const COLORS = [
-    "#8884d8",
-    "#82ca9d",
-    "#ffc658",
-    "#ff7300",
-    "#8dd1e1",
-    "#d084d0",
+    '#8884d8',
+    '#82ca9d',
+    '#ffc658',
+    '#ff7300',
+    '#8dd1e1',
+    '#d084d0',
   ];
 
   const formatCurrency = (value: number) => `₹${(value / 1000).toFixed(1)}k`;
 
   const getStatusBadgeVariant = (status: string) => {
     switch (status) {
-      case "active":
-        return "default";
-      case "draft":
-        return "secondary";
-      case "outOfStock":
-        return "destructive";
+      case 'active':
+        return 'default';
+      case 'draft':
+        return 'secondary';
+      case 'outOfStock':
+        return 'destructive';
       default:
-        return "secondary";
+        return 'secondary';
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case "active":
+      case 'active':
         return t.active;
-      case "draft":
+      case 'draft':
         return t.draft;
-      case "outOfStock":
+      case 'outOfStock':
         return t.outOfStock;
       default:
         return status;
@@ -365,6 +365,12 @@ const Dashboard = () => {
               <Button variant="ghost" className="flex items-center space-x-2">
                 <Store className="h-4 w-4" />
                 <span>{t.nav.marketplace}</span>
+              </Button>
+            </Link>
+            <Link to="/cart">
+              <Button variant="ghost" className="flex items-center space-x-2">
+                <ShoppingBag className="h-4 w-4" />
+                <span>Cart</span>
               </Button>
             </Link>
             <Button
@@ -435,6 +441,15 @@ const Dashboard = () => {
                     <span>{t.nav.marketplace}</span>
                   </Button>
                 </Link>
+                <Link to="/cart" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start flex items-center space-x-2"
+                  >
+                    <ShoppingBag className="h-4 w-4" />
+                    <span>Cart</span>
+                  </Button>
+                </Link>
                 <Button
                   variant="ghost"
                   className="w-full justify-start flex items-center space-x-2 bg-primary/10 text-primary"
@@ -465,7 +480,14 @@ const Dashboard = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">{t.dashboard}</h1>
-            <p className="text-gray-600 mt-1">{t.welcome}</p>
+            <p className="text-gray-600 mt-1">
+              {language === 'english' &&
+                `Welcome back, ${user?.name || user?.email || 'Artisan'}!`}
+              {language === 'hindi' &&
+                `वापसी पर स्वागत है, ${user?.name || user?.email || 'कारीगर'}!`}
+              {language === 'hinglish' &&
+                `Welcome back, ${user?.name || user?.email || 'Artisan'}!`}
+            </p>
           </div>
           <div className="flex items-center gap-4">
             <LanguageToggle
@@ -562,7 +584,7 @@ const Dashboard = () => {
                     <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Based on {isDemo ? "344" : "256"} reviews
+                    Based on {isDemo ? '344' : '256'} reviews
                   </p>
                 </CardContent>
               </Card>
@@ -588,9 +610,9 @@ const Dashboard = () => {
                       <XAxis dataKey="month" />
                       <YAxis tickFormatter={formatCurrency} />
                       <Tooltip
-                        formatter={(value) => [
+                        formatter={value => [
                           formatCurrency(value as number),
-                          "Revenue",
+                          'Revenue',
                         ]}
                       />
                       <Area
@@ -613,7 +635,7 @@ const Dashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {recentProducts.map((product) => (
+                  {recentProducts.map(product => (
                     <div
                       key={product.id}
                       className="flex items-center gap-4 p-4 border rounded-lg"
@@ -802,9 +824,9 @@ const Dashboard = () => {
                           <XAxis dataKey="state" />
                           <YAxis tickFormatter={formatCurrency} />
                           <Tooltip
-                            formatter={(value) => [
+                            formatter={value => [
                               formatCurrency(value as number),
-                              "Revenue",
+                              'Revenue',
                             ]}
                           />
                           <Bar dataKey="revenue" fill="#ffc658" />
@@ -894,7 +916,7 @@ const Dashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recentProducts.map((product) => (
+              {recentProducts.map(product => (
                 <Card key={product.id}>
                   <CardContent className="p-4">
                     <img
@@ -935,66 +957,7 @@ const Dashboard = () => {
 
           {/* Profile Tab */}
           <TabsContent value="profile" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Artisan Profile</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center gap-6">
-                  <img
-                    src={potteryImage}
-                    alt="Priya Sharma"
-                    className="w-24 h-24 rounded-full object-cover"
-                  />
-                  <div>
-                    <h3 className="text-xl font-semibold">Priya Sharma</h3>
-                    <p className="text-gray-600">Master Potter</p>
-                    <p className="text-sm text-gray-500 flex items-center gap-1 mt-1">
-                      <MapPin className="h-3 w-3" />
-                      Jaipur, Rajasthan
-                    </p>
-                    <div className="flex items-center gap-4 mt-2">
-                      <div className="flex items-center gap-1">
-                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                        <span className="font-medium">{stats.rating}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        <span className="text-sm">
-                          {stats.followers} followers
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold mb-2">About</h4>
-                  <p className="text-gray-600">
-                    Master potter with 15 years of experience specializing in
-                    traditional Rajasthani blue pottery. Known for combining
-                    traditional techniques with modern designs to create unique,
-                    functional art pieces.
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold mb-2">Specialities</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {[
-                      "Blue Pottery",
-                      "Decorative Vases",
-                      "Kitchen Sets",
-                      "Garden Planters",
-                    ].map((specialty) => (
-                      <Badge key={specialty} variant="secondary">
-                        {specialty}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <ProfileEditor />
           </TabsContent>
         </Tabs>
       </div>

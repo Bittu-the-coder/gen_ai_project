@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"time"
-
 	"voicecraft-market/internal/models"
 
 	"cloud.google.com/go/firestore"
@@ -179,7 +178,7 @@ func (fs *FirestoreService) DeleteProduct(productID string) error {
 }
 
 func (fs *FirestoreService) GetProductsWithFilters(filters map[string]interface{}, sortBy, sortOrder string, limit, offset int) ([]models.Product, int, error) {
-	query := fs.client.Collection(ProductsCollection)
+	query := fs.client.Collection(ProductsCollection).Query
 
 	// Apply filters
 	for key, value := range filters {
@@ -227,7 +226,7 @@ func (fs *FirestoreService) GetProductsWithFilters(filters map[string]interface{
 	}
 
 	// Get total count (simplified)
-	totalQuery := fs.client.Collection(ProductsCollection)
+	totalQuery := fs.client.Collection(ProductsCollection).Query
 	for key, value := range filters {
 		if key != "search" {
 			totalQuery = totalQuery.Where(key, "==", value)
@@ -277,7 +276,7 @@ func (fs *FirestoreService) UpdateArtisan(artisanID string, updates map[string]i
 }
 
 func (fs *FirestoreService) GetArtisansWithFilters(filters map[string]interface{}, sortBy, sortOrder string, limit, offset int) ([]models.ArtisanProfile, int, error) {
-	query := fs.client.Collection(ArtisansCollection)
+	query := fs.client.Collection(ArtisansCollection).Query
 
 	// Apply filters
 	for key, value := range filters {
@@ -360,7 +359,7 @@ func (fs *FirestoreService) UpdateOrder(orderID string, updates map[string]inter
 }
 
 func (fs *FirestoreService) GetOrdersWithFilters(filters map[string]interface{}, sortBy, sortOrder string, limit, offset int) ([]models.Order, int, error) {
-	query := fs.client.Collection(OrdersCollection)
+	var query firestore.Query = fs.client.Collection(OrdersCollection).Query
 
 	// Apply filters
 	for key, value := range filters {
@@ -403,7 +402,7 @@ func (fs *FirestoreService) GetOrdersWithFilters(filters map[string]interface{},
 	}
 
 	// Get total count
-	totalQuery := fs.client.Collection(OrdersCollection)
+	var totalQuery firestore.Query = fs.client.Collection(OrdersCollection).Query
 	for key, value := range filters {
 		totalQuery = totalQuery.Where(key, "==", value)
 	}

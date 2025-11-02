@@ -31,6 +31,7 @@ const (
 
 // ArtisanProfile contains artisan-specific information
 type ArtisanProfile struct {
+	ID              string            `firestore:"id,omitempty" json:"id,omitempty"`
 	Craft           string            `firestore:"craft" json:"craft"`
 	Location        string            `firestore:"location" json:"location"`
 	YearsExperience int               `firestore:"years_experience" json:"years_experience"`
@@ -45,6 +46,8 @@ type ArtisanProfile struct {
 	ReviewCount     int               `firestore:"review_count" json:"review_count"`
 	FollowerCount   int               `firestore:"follower_count" json:"follower_count"`
 	TotalSales      int               `firestore:"total_sales" json:"total_sales"`
+	CreatedAt       time.Time         `firestore:"created_at" json:"created_at"`
+	UpdatedAt       time.Time         `firestore:"updated_at" json:"updated_at"`
 }
 
 // Product represents an artisan's product

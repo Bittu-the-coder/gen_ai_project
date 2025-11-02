@@ -1,1 +1,8 @@
 node_modules/
+pkg/
+dist/
+.env
+.DS_Store
+pkg/mod/
+backend/api/internal/config/service-account.json
+backend/src/config/service-account.json

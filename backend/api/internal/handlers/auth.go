@@ -3,8 +3,10 @@ package handlers
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"voicecraft-market/internal/middleware"
+	"voicecraft-market/internal/models"
 	"voicecraft-market/internal/services"
 
 	"firebase.google.com/go/auth"
@@ -34,11 +36,36 @@ func (h *AuthHandler) GetProfile(c *gin.Context) {
 	// Get user from Firestore
 	user, err := h.firestoreService.GetUser(userID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-		return
+		// If user doesn't exist, try to create from Firebase Auth
+		firebaseUser, err := h.authClient.GetUser(c.Request.Context(), userID)
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+			return
+		}
+
+		// Create basic user profile
+		newUser := &models.User{
+			ID:        firebaseUser.UID,
+			Email:     firebaseUser.Email,
+			Name:      firebaseUser.DisplayName,
+			Phone:     firebaseUser.PhoneNumber,
+			Role:      models.RoleBuyer,
+			Status:    "active",
+			Language:  "english",
+			CreatedAt: time.UnixMilli(firebaseUser.UserMetadata.CreationTimestamp),
+			UpdatedAt: time.Now(),
+		}
+
+		_, err = h.firestoreService.CreateUser(newUser)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user profile"})
+			return
+		}
+
+		user, _ = h.firestoreService.GetUser(userID)
 	}
 
-	c.JSON(http.StatusOK, gin.H{"user": user})
+	c.JSON(http.StatusOK, user)
 }
 
 // UpdateProfile updates the current user's profile
@@ -58,7 +85,11 @@ func (h *AuthHandler) UpdateProfile(c *gin.Context) {
 	// Prevent updating certain fields
 	delete(updates, "id")
 	delete(updates, "created_at")
-	delete(updates, "role")
+
+	// If this is a new user signup with artisan profile, update role
+	if artisanProfile, ok := updates["artisan_profile"].(map[string]interface{}); ok && artisanProfile != nil {
+		updates["role"] = "artisan"
+	}
 
 	// Update user in Firestore
 	err = h.firestoreService.UpdateUser(userID, updates)
@@ -74,7 +105,7 @@ func (h *AuthHandler) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"user": user})
+	c.JSON(http.StatusOK, user)
 }
 
 // GetAllUsers returns all users (admin only)

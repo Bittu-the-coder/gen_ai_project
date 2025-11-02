@@ -1,132 +1,363 @@
-import React from 'react';
+import { LanguageToggle } from '@/components/LanguageToggle';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Mic, Upload as UploadIcon, Wand2, Sparkles, 
-  Camera, FileText, Hash, Instagram, MessageSquare, ArrowLeft 
+import { Textarea } from '@/components/ui/textarea';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { AIGeneratedContent, productsApi } from '@/services/api';
+import {
+  ArrowLeft,
+  Camera,
+  FileText,
+  Hash,
+  Instagram,
+  Loader2,
+  MessageSquare,
+  Mic,
+  Sparkles,
+  Upload as UploadIcon,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { LanguageToggle } from '@/components/LanguageToggle';
-import { VoiceUpload } from '@/components/VoiceUpload';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Upload = () => {
-  const [language, setLanguage] = React.useState<'english' | 'hindi' | 'hinglish'>('english');
-  const [step, setStep] = React.useState(1);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [language, setLanguage] = useState<'english' | 'hindi' | 'hinglish'>(
+    'english'
+  );
+  const [step, setStep] = useState(1);
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (user === null) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [productImages, setProductImages] = useState<File[]>([]);
+  const [generatedContent, setGeneratedContent] =
+    useState<AIGeneratedContent | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [productData, setProductData] = useState({
+    title: '',
+    description: '',
+    price: 0,
+    category: '',
+    story: '',
+  });
+  const { toast } = useToast();
+
+  // Show loading while checking authentication
+  if (user === null) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-muted/50 to-background flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+          <p>Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   const translations = {
     english: {
-      title: "Create Product with Voice",
-      subtitle: "Upload a voice note and let AI create your product story in 60 seconds",
-      backToDashboard: "Back to Dashboard",
-      step1: "Upload Voice Note",
-      step2: "AI Magic in Progress", 
-      step3: "Review & Publish",
-      voiceInstructions: "Record or upload a voice note describing your product. Include details about materials, crafting process, inspiration, and what makes it special.",
-      uploadImage: "Upload Product Images",
-      dragDrop: "Drag & drop images here, or click to select",
-      aiGenerated: "AI Generated Content",
-      productTitle: "Product Title",
-      description: "Description",
-      price: "Suggested Price",
-      artisanStory: "Artisan Story",
-      socialContent: "Social Media Content",
-      hashtags: "Hashtags",
-      instagramReels: "Instagram Reel Scripts",
-      whatsappCatalog: "WhatsApp Catalog",
-      category: "Category",
-      selectCategory: "Select Category",
-      pottery: "Pottery",
-      textiles: "Textiles",
-      woodcraft: "Woodcraft", 
-      jewelry: "Jewelry",
-      publish: "Publish Product",
-      saveAsDraft: "Save as Draft",
-      processing: "Processing your voice note...",
-      almostDone: "Almost done! Generating your product content..."
+      title: 'Add New Product',
+      subtitle:
+        'Upload media and create your product listing in a few simple steps',
+      backToDashboard: 'Back to Dashboard',
+      step1: 'Upload Media',
+      step2: 'AI Processing',
+      step3: 'Product Details',
+      voiceInstructions:
+        'Optionally upload a voice note about your product. You can also skip this and add details manually.',
+      uploadImage: 'Upload Product Images',
+      dragDrop: 'Drag & drop images here, or click to select',
+      aiGenerated: 'AI Generated Content',
+      productTitle: 'Product Title',
+      description: 'Description',
+      price: 'Price (₹)',
+      artisanStory: 'Artisan Story',
+      socialContent: 'Social Media Content',
+      hashtags: 'Hashtags',
+      instagramReels: 'Instagram Reel Scripts',
+      whatsappCatalog: 'WhatsApp Catalog',
+      category: 'Category',
+      selectCategory: 'Select Category',
+      pottery: 'Pottery',
+      textiles: 'Textiles',
+      woodcraft: 'Woodcraft',
+      jewelry: 'Jewelry',
+      publish: 'Publish Product',
+      saveAsDraft: 'Save as Draft',
+      processing: 'Processing your voice note...',
+      almostDone: 'Almost done! Generating your product content...',
+      selectAudio: 'Select Audio File',
+      generateAI: 'Generate with AI',
+      errorUpload: 'Failed to upload audio',
+      errorGenerate: 'Failed to generate product',
+      successPublish: 'Product published successfully!',
+      uploadAudioFirst: 'Please upload an audio file first',
     },
     hindi: {
-      title: "आवाज़ से उत्पाद बनाएं",
-      subtitle: "एक आवाज़ का नोट अपलोड करें और AI को 60 सेकंड में आपकी उत्पाद कहानी बनाने दें",
-      backToDashboard: "डैशबोर्ड पर वापस जाएं",
-      step1: "आवाज़ नोट अपलोड करें",
-      step2: "AI जादू प्रगति में",
-      step3: "समीक्षा और प्रकाशित करें", 
-      voiceInstructions: "अपने उत्पाद का वर्णन करते हुए एक आवाज़ नोट रिकॉर्ड या अपलोड करें। सामग्री, शिल्प प्रक्रिया, प्रेरणा और इसे विशेष बनाने वाली बातों के विवरण शामिल करें।",
-      uploadImage: "उत्पाद छवियां अपलोड करें",  
-      dragDrop: "छवियों को यहां खींचें और छोड़ें, या चुनने के लिए क्लिक करें",
-      aiGenerated: "AI द्वारा जेनरेट की गई सामग्री",
-      productTitle: "उत्पाद शीर्षक",
-      description: "विवरण",
-      price: "सुझाया गया मूल्य",
-      artisanStory: "कारीगर की कहानी",
-      socialContent: "सोशल मीडिया सामग्री",
-      hashtags: "हैशटैग",
-      instagramReels: "Instagram रील स्क्रिप्ट",
-      whatsappCatalog: "WhatsApp कैटलॉग",
-      category: "श्रेणी",
-      selectCategory: "श्रेणी चुनें",
-      pottery: "मिट्टी के बर्तन",
-      textiles: "वस्त्र",
-      woodcraft: "लकड़ी का काम",
-      jewelry: "आभूषण",
-      publish: "उत्पाद प्रकाशित करें",
-      saveAsDraft: "मसौदे के रूप में सेव करें",
-      processing: "आपकी आवाज़ नोट प्रोसेस हो रही है...",
-      almostDone: "लगभग हो गया! आपकी उत्पाद सामग्री जेनरेट हो रही है..."
+      title: 'आवाज़ से उत्पाद बनाएं',
+      subtitle:
+        'एक आवाज़ का नोट अपलोड करें और AI को 60 सेकंड में आपकी उत्पाद कहानी बनाने दें',
+      backToDashboard: 'डैशबोर्ड पर वापस जाएं',
+      step1: 'आवाज़ नोट अपलोड करें',
+      step2: 'AI जादू प्रगति में',
+      step3: 'समीक्षा और प्रकाशित करें',
+      voiceInstructions:
+        'अपने उत्पाद का वर्णन करते हुए एक आवाज़ नोट रिकॉर्ड या अपलोड करें।',
+      uploadImage: 'उत्पाद छवियां अपलोड करें',
+      dragDrop: 'छवियों को यहां खींचें और छोड़ें',
+      aiGenerated: 'AI द्वारा जेनरेट की गई सामग्री',
+      productTitle: 'उत्पाद शीर्षक',
+      description: 'विवरण',
+      price: 'मूल्य (₹)',
+      artisanStory: 'कारीगर की कहानी',
+      socialContent: 'सोशल मीडिया सामग्री',
+      hashtags: 'हैशटैग',
+      instagramReels: 'Instagram रील स्क्रिप्ट',
+      whatsappCatalog: 'WhatsApp कैटलॉग',
+      category: 'श्रेणी',
+      selectCategory: 'श्रेणी चुनें',
+      pottery: 'मिट्टी के बर्तन',
+      textiles: 'वस्त्र',
+      woodcraft: 'लकड़ी का काम',
+      jewelry: 'आभूषण',
+      publish: 'प्रकाशित करें',
+      saveAsDraft: 'मसौदे में सेव करें',
+      processing: 'आपकी आवाज़ नोट प्रोसेस हो रही है...',
+      almostDone: 'लगभग हो गया!',
+      selectAudio: 'ऑडियो फ़ाइल चुनें',
+      generateAI: 'AI से जेनरेट करें',
+      errorUpload: 'ऑडियो अपलोड विफल',
+      errorGenerate: 'उत्पाद जेनरेट करने में विफल',
+      successPublish: 'उत्पाद सफलतापूर्वक प्रकाशित!',
+      uploadAudioFirst: 'कृपया पहले ऑडियो फ़ाइल अपलोड करें',
     },
     hinglish: {
-      title: "Voice se Product banao",
-      subtitle: "Voice note upload karo aur AI ko 60 seconds mein aapki product story banane do",
-      backToDashboard: "Dashboard pe wapas jao",
-      step1: "Voice Note Upload karo",
-      step2: "AI Magic Progress mein",
-      step3: "Review aur Publish karo",
-      voiceInstructions: "Apne product ke baare mein voice note record ya upload karo. Materials, crafting process, inspiration aur kya special hai ye sab include karo.",
-      uploadImage: "Product Images Upload karo",
-      dragDrop: "Images yahan drag & drop karo, ya select karne ke liye click karo",
-      aiGenerated: "AI Generated Content",
-      productTitle: "Product Title",
-      description: "Description", 
-      price: "Suggested Price",
-      artisanStory: "Artisan ki Story",
-      socialContent: "Social Media Content",
-      hashtags: "Hashtags",
-      instagramReels: "Instagram Reel Scripts",
-      whatsappCatalog: "WhatsApp Catalog",
-      category: "Category",
-      selectCategory: "Category select karo",
-      pottery: "Pottery",
-      textiles: "Textiles",
-      woodcraft: "Woodcraft",
-      jewelry: "Jewelry", 
-      publish: "Product Publish karo",
-      saveAsDraft: "Draft mein save karo",
-      processing: "Aapka voice note process ho raha hai...",
-      almostDone: "Almost done! Aapka product content generate ho raha hai..."
-    }
+      title: 'Voice se Product banao',
+      subtitle: 'Voice note upload karo aur AI ko product story banane do',
+      backToDashboard: 'Dashboard pe wapas',
+      step1: 'Voice Note Upload karo',
+      step2: 'AI Magic Progress mein',
+      step3: 'Review aur Publish karo',
+      voiceInstructions: 'Apne product ke baare mein voice note upload karo।',
+      uploadImage: 'Product Images Upload karo',
+      dragDrop: 'Images yahan drag & drop karo',
+      aiGenerated: 'AI Generated Content',
+      productTitle: 'Product Title',
+      description: 'Description',
+      price: 'Price (₹)',
+      artisanStory: 'Artisan ki Story',
+      socialContent: 'Social Media Content',
+      hashtags: 'Hashtags',
+      instagramReels: 'Instagram Reel Scripts',
+      whatsappCatalog: 'WhatsApp Catalog',
+      category: 'Category',
+      selectCategory: 'Category select karo',
+      pottery: 'Pottery',
+      textiles: 'Textiles',
+      woodcraft: 'Woodcraft',
+      jewelry: 'Jewelry',
+      publish: 'Publish karo',
+      saveAsDraft: 'Draft mein save karo',
+      processing: 'Aapka voice note process ho raha hai...',
+      almostDone: 'Almost done!',
+      selectAudio: 'Audio File select karo',
+      generateAI: 'AI se Generate karo',
+      errorUpload: 'Audio upload fail',
+      errorGenerate: 'Product generate karne mein problem',
+      successPublish: 'Product successfully publish ho gaya!',
+      uploadAudioFirst: 'Pehle audio file upload karo',
+    },
   };
 
   const t = translations[language];
 
-  // Mock AI generated content for demo
-  const aiContent = {
-    title: "Handcrafted Terracotta Water Pitcher",
-    description: "This beautiful terracotta water pitcher is handcrafted using traditional techniques passed down through generations. Made from natural clay sourced locally, each pitcher is unique with its own character and charm. The porous nature of terracotta keeps water naturally cool and adds essential minerals, making it perfect for daily use.",
-    price: "₹899",
-    story: "I learned this craft from my grandmother when I was just 10 years old. Every morning, I would sit beside her as she shaped the clay with such grace and precision. This pitcher represents 15 years of dedication to preserving our traditional pottery techniques. The clay comes from the riverbank near our village, and each piece is fired in our traditional wood kiln.",
-    hashtags: "#HandmadeInIndia #TraditionalPottery #EcoFriendly #Terracotta #Sustainable #LocalCraft #ArtisanMade #NaturalClay #IndianCrafts #HandcraftedLove",
-    reelScripts: [
-      "Watch how this traditional water pitcher comes to life! From raw clay to finished masterpiece in 60 seconds ✨ Each piece tells a story of generations #HandmadeInIndia",
-      "Why terracotta water pitchers are making a comeback! 🏺 Natural cooling, eco-friendly, and adds minerals to your water. Swipe to see the making process!",
-      "POV: You're watching a master potter at work 👩‍🎨 15 years of experience in every piece. Comment 'CRAFT' if you love handmade products! #TraditionalArt"
-    ],
-    whatsappText: "🏺 *Handcrafted Terracotta Water Pitcher*\n\n✨ Made with traditional techniques\n🌿 Eco-friendly & sustainable\n💧 Keeps water naturally cool\n🎨 Each piece is unique\n\n*Price: ₹899*\n*Free delivery in Jaipur*\n\nOrder now: Just reply with 'PITCHER' 📱"
+  const handleAudioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('Audio file change detected:', e.target.files);
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      console.log('Selected file:', file.name, file.type, file.size);
+      setAudioFile(file);
+      toast({
+        title: 'File Selected',
+        description: `Selected ${file.name}`,
+      });
+    }
+  };
+
+  const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('Images change detected:', e.target.files);
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      console.log(
+        'Selected images:',
+        files.map(f => ({ name: f.name, type: f.type, size: f.size }))
+      );
+      setProductImages(files);
+      toast({
+        title: 'Images Selected',
+        description: `Selected ${files.length} image(s)`,
+      });
+    }
+  };
+
+  const handleGenerateProduct = async () => {
+    console.log('Generate product clicked');
+    // Skip audio requirement for now - allow direct product creation
+    try {
+      setLoading(true);
+      setStep(2);
+
+      console.log('Generating mock content...');
+      // Mock AI generated content for testing
+      const mockContent = {
+        product_title: 'Handcrafted Pottery Set',
+        product_description:
+          'Beautiful handcrafted pottery made using traditional techniques',
+        price: 2999,
+        category: 'pottery',
+        artisan_story:
+          'Each piece is carefully crafted by skilled artisans using methods passed down through generations.',
+        hashtags: ['#handmade', '#pottery', '#traditional', '#artisan'],
+        seo_keywords: [
+          'handcrafted pottery',
+          'traditional ceramics',
+          'artisan pottery',
+        ],
+        social_media_content: {
+          instagram_reel: 'Watch our artisans create beautiful pottery!',
+          whatsapp_catalog: 'Handcrafted pottery available for order',
+        },
+      };
+
+      setGeneratedContent(mockContent);
+      setProductData({
+        title: mockContent.product_title,
+        description: mockContent.product_description,
+        price: mockContent.price,
+        category: mockContent.category,
+        story: mockContent.artisan_story,
+      });
+      setStep(3);
+
+      toast({
+        title: 'Content Generated!',
+        description: 'Product content generated successfully',
+      });
+    } catch (error) {
+      console.error('Failed to generate product:', error);
+      toast({
+        title: t.errorGenerate || 'Error',
+        description: 'Please try again',
+        variant: 'destructive',
+      });
+      setStep(1);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePublishProduct = async () => {
+    console.log('Publish product clicked', productData);
+
+    // Validate required fields
+    if (!productData.title.trim()) {
+      toast({
+        title: 'Validation Error',
+        description: 'Product title is required',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!productData.description.trim()) {
+      toast({
+        title: 'Validation Error',
+        description: 'Product description is required',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (productData.price <= 0) {
+      toast({
+        title: 'Validation Error',
+        description: 'Product price must be greater than 0',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!productData.category) {
+      toast({
+        title: 'Validation Error',
+        description: 'Please select a category',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const product = await productsApi.createProduct({
+        title: productData.title,
+        description: productData.description,
+        price: productData.price,
+        currency: 'INR',
+        category: productData.category,
+        status: 'active',
+        stock: 1,
+        materials: generatedContent?.product_title
+          ? [generatedContent.product_title]
+          : [],
+        tags: generatedContent?.hashtags || [],
+        seo_keywords: generatedContent?.seo_keywords || [],
+        ai_generated_content: generatedContent,
+      });
+
+      // Upload images if any
+      if (productImages.length > 0 && product.id) {
+        await productsApi.uploadProductImages(product.id, productImages);
+      }
+
+      toast({
+        title: t.successPublish || 'Product Published!',
+        description: 'Your product has been successfully created',
+      });
+
+      // Redirect to the new product detail page so the creator can see it immediately
+      if (product && product.id) {
+        navigate(`/product/${product.id}`);
+      } else {
+        navigate('/dashboard');
+      }
+    } catch (error) {
+      console.error('Failed to publish product:', error);
+      toast({
+        title: 'Failed to publish',
+        description: 'Please try again',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -137,11 +368,14 @@ const Upload = () => {
           <Link to="/" className="flex items-center space-x-2">
             <Mic className="h-8 w-8 text-primary" />
             <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
-              Voice-to-Shop
+              VoiceCraft Market
             </span>
           </Link>
           <div className="flex items-center space-x-4">
-            <LanguageToggle language={language} onLanguageChange={setLanguage} />
+            <LanguageToggle
+              language={language}
+              onLanguageChange={setLanguage}
+            />
             <Link to="/dashboard">
               <Button variant="outline">Dashboard</Button>
             </Link>
@@ -153,7 +387,11 @@ const Upload = () => {
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <Link to="/dashboard">
-            <Button variant="ghost" size="sm" className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex items-center gap-2"
+            >
               <ArrowLeft className="h-4 w-4" />
               {t.backToDashboard}
             </Button>
@@ -166,35 +404,65 @@ const Upload = () => {
               {t.title}
             </span>
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">{t.subtitle}</p>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            {t.subtitle}
+          </p>
         </div>
 
         {/* Progress Steps */}
         <div className="flex items-center justify-center mb-12">
           <div className="flex items-center space-x-4">
-            <div className={`flex items-center gap-2 ${step >= 1 ? 'text-primary' : 'text-muted-foreground'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+            <div
+              className={`flex items-center gap-2 ${
+                step >= 1 ? 'text-primary' : 'text-muted-foreground'
+              }`}
+            >
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                  step >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                }`}
+              >
                 1
               </div>
-              <span className="font-medium">{t.step1}</span>
+              <span className="font-medium hidden sm:block">{t.step1}</span>
             </div>
-            
-            <div className={`w-12 h-0.5 ${step >= 2 ? 'bg-primary' : 'bg-muted'}`} />
-            
-            <div className={`flex items-center gap-2 ${step >= 2 ? 'text-primary' : 'text-muted-foreground'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+
+            <div
+              className={`w-12 h-0.5 ${step >= 2 ? 'bg-primary' : 'bg-muted'}`}
+            />
+
+            <div
+              className={`flex items-center gap-2 ${
+                step >= 2 ? 'text-primary' : 'text-muted-foreground'
+              }`}
+            >
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                  step >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                }`}
+              >
                 2
               </div>
-              <span className="font-medium">{t.step2}</span>
+              <span className="font-medium hidden sm:block">{t.step2}</span>
             </div>
-            
-            <div className={`w-12 h-0.5 ${step >= 3 ? 'bg-primary' : 'bg-muted'}`} />
-            
-            <div className={`flex items-center gap-2 ${step >= 3 ? 'text-primary' : 'text-muted-foreground'}`}>
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${step >= 3 ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+
+            <div
+              className={`w-12 h-0.5 ${step >= 3 ? 'bg-primary' : 'bg-muted'}`}
+            />
+
+            <div
+              className={`flex items-center gap-2 ${
+                step >= 3 ? 'text-primary' : 'text-muted-foreground'
+              }`}
+            >
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                  step >= 3 ? 'bg-primary text-primary-foreground' : 'bg-muted'
+                }`}
+              >
                 3
               </div>
-              <span className="font-medium">{t.step3}</span>
+              <span className="font-medium hidden sm:block">{t.step3}</span>
             </div>
           </div>
         </div>
@@ -207,21 +475,53 @@ const Upload = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Mic className="h-5 w-5 text-primary" />
-                  {t.step1}
+                  Voice Note (Optional)
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <p className="text-muted-foreground">{t.voiceInstructions}</p>
-                <VoiceUpload />
-                <div className="flex justify-center">
-                  <Button 
-                    onClick={() => setStep(2)}
-                    className="bg-gradient-to-r from-primary to-primary-glow hover:shadow-warm"
-                    size="lg"
+
+                <div className="border-2 border-dashed border-primary/25 rounded-lg p-8 text-center hover:border-primary/50 transition-colors">
+                  <input
+                    type="file"
+                    accept="audio/*"
+                    onChange={handleAudioChange}
+                    className="hidden"
+                    id="audio-upload"
+                  />
+                  <label
+                    htmlFor="audio-upload"
+                    className="cursor-pointer block"
                   >
-                    <Wand2 className="h-4 w-4 mr-2" />
-                    Generate with AI
-                  </Button>
+                    <Mic
+                      className={`h-12 w-12 mx-auto mb-4 ${
+                        audioFile ? 'text-primary' : 'text-primary/50'
+                      }`}
+                    />
+                    <p className="text-muted-foreground mb-2">
+                      {audioFile
+                        ? `✓ ${audioFile.name}`
+                        : t.selectAudio || 'Select Audio File'}
+                    </p>
+                    <Button
+                      variant="outline"
+                      type="button"
+                      className="mt-2"
+                      asChild
+                    >
+                      <span>
+                        <UploadIcon className="h-4 w-4 mr-2" />
+                        {audioFile ? 'Change File' : 'Choose File'}
+                      </span>
+                    </Button>
+                  </label>
+                </div>
+
+                <div className="text-center text-sm text-muted-foreground">
+                  <p>
+                    Audio upload is optional. You can add product details
+                    manually in the next step.
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -231,16 +531,95 @@ const Upload = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Camera className="h-5 w-5 text-primary" />
-                  {t.uploadImage}
+                  {t.uploadImage || 'Upload Product Images'}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
-                  <UploadIcon className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-                  <p className="text-muted-foreground">{t.dragDrop}</p>
+                <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center hover:border-primary/50 transition-colors">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImagesChange}
+                    className="hidden"
+                    id="image-upload"
+                  />
+                  <label
+                    htmlFor="image-upload"
+                    className="cursor-pointer block"
+                  >
+                    <Camera
+                      className={`h-12 w-12 mx-auto mb-4 ${
+                        productImages.length > 0
+                          ? 'text-primary'
+                          : 'text-muted-foreground/50'
+                      }`}
+                    />
+                    <p className="text-muted-foreground mb-2">
+                      {productImages.length > 0
+                        ? `✓ ${productImages.length} image(s) selected`
+                        : t.dragDrop ||
+                          'Drag & drop images here, or click to select'}
+                    </p>
+                    <Button
+                      variant="outline"
+                      type="button"
+                      className="mt-2"
+                      asChild
+                    >
+                      <span>
+                        <UploadIcon className="h-4 w-4 mr-2" />
+                        {productImages.length > 0
+                          ? 'Change Images'
+                          : 'Select Images'}
+                      </span>
+                    </Button>
+                  </label>
                 </div>
+
+                {/* Show selected images */}
+                {productImages.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-sm text-muted-foreground mb-2">
+                      Selected images:
+                    </p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      {productImages.map((file, index) => (
+                        <div key={index} className="bg-muted rounded p-2">
+                          <p className="text-xs truncate">{file.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {(file.size / 1024 / 1024).toFixed(2)} MB
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
+
+            {/* Navigation Buttons */}
+            <div className="flex justify-center mt-8">
+              <Button
+                onClick={() => {
+                  console.log('Next button clicked - going to step 3');
+                  // Initialize with empty product data for manual entry
+                  setProductData({
+                    title: '',
+                    description: '',
+                    price: 0,
+                    category: '',
+                    story: '',
+                  });
+                  setStep(3);
+                }}
+                className="bg-gradient-to-r from-primary to-primary-glow hover:shadow-warm"
+                size="lg"
+              >
+                Next: Add Product Details
+                <ArrowLeft className="h-4 w-4 ml-2 rotate-180" />
+              </Button>
+            </div>
           </div>
         )}
 
@@ -248,21 +627,15 @@ const Upload = () => {
           <div className="max-w-2xl mx-auto">
             <Card>
               <CardContent className="p-12 text-center">
-                <div className="animate-spin w-16 h-16 border-4 border-primary border-t-transparent rounded-full mx-auto mb-6"></div>
+                <Loader2 className="w-16 h-16 mx-auto mb-6 animate-spin text-primary" />
                 <h3 className="text-xl font-semibold mb-2">{t.processing}</h3>
                 <p className="text-muted-foreground mb-6">{t.almostDone}</p>
                 <div className="flex items-center justify-center gap-2 text-primary">
                   <Sparkles className="h-4 w-4" />
-                  <span className="text-sm font-medium">AI Magic in Progress...</span>
+                  <span className="text-sm font-medium">
+                    AI Magic in Progress...
+                  </span>
                   <Sparkles className="h-4 w-4" />
-                </div>
-                <div className="mt-8">
-                  <Button 
-                    onClick={() => setStep(3)}
-                    variant="outline"
-                  >
-                    Skip to Results (Demo)
-                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -271,14 +644,20 @@ const Upload = () => {
 
         {step === 3 && (
           <div className="space-y-8">
-            <div className="text-center">
-              <Badge className="bg-primary/10 text-primary border-primary/20">
-                <Sparkles className="h-4 w-4 mr-2" />
-                {t.aiGenerated}
-              </Badge>
-            </div>
+            {generatedContent && (
+              <div className="text-center">
+                <Badge className="bg-primary/10 text-primary border-primary/20">
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  {t.aiGenerated || 'AI Generated'}
+                </Badge>
+              </div>
+            )}
 
-            <div className="grid lg:grid-cols-2 gap-8">
+            <div
+              className={`grid gap-8 ${
+                generatedContent ? 'lg:grid-cols-2' : 'max-w-2xl mx-auto'
+              }`}
+            >
               {/* Product Details */}
               <div className="space-y-6">
                 <Card>
@@ -291,29 +670,67 @@ const Upload = () => {
                   <CardContent className="space-y-4">
                     <div>
                       <Label htmlFor="title">{t.productTitle}</Label>
-                      <Input id="title" value={aiContent.title} />
+                      <Input
+                        id="title"
+                        value={productData.title}
+                        onChange={e =>
+                          setProductData({
+                            ...productData,
+                            title: e.target.value,
+                          })
+                        }
+                      />
                     </div>
-                    
+
                     <div>
                       <Label htmlFor="description">{t.description}</Label>
-                      <Textarea id="description" value={aiContent.description} rows={4} />
+                      <Textarea
+                        id="description"
+                        value={productData.description}
+                        onChange={e =>
+                          setProductData({
+                            ...productData,
+                            description: e.target.value,
+                          })
+                        }
+                        rows={4}
+                      />
                     </div>
-                    
+
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="price">{t.price}</Label>
-                        <Input id="price" value={aiContent.price} />
+                        <Input
+                          id="price"
+                          type="number"
+                          value={productData.price}
+                          onChange={e =>
+                            setProductData({
+                              ...productData,
+                              price: Number(e.target.value),
+                            })
+                          }
+                        />
                       </div>
                       <div>
                         <Label htmlFor="category">{t.category}</Label>
-                        <Select>
+                        <Select
+                          value={productData.category}
+                          onValueChange={value =>
+                            setProductData({ ...productData, category: value })
+                          }
+                        >
                           <SelectTrigger>
                             <SelectValue placeholder={t.selectCategory} />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="pottery">{t.pottery}</SelectItem>
-                            <SelectItem value="textiles">{t.textiles}</SelectItem>
-                            <SelectItem value="woodcraft">{t.woodcraft}</SelectItem>
+                            <SelectItem value="textiles">
+                              {t.textiles}
+                            </SelectItem>
+                            <SelectItem value="woodcraft">
+                              {t.woodcraft}
+                            </SelectItem>
                             <SelectItem value="jewelry">{t.jewelry}</SelectItem>
                           </SelectContent>
                         </Select>
@@ -322,71 +739,115 @@ const Upload = () => {
 
                     <div>
                       <Label htmlFor="story">{t.artisanStory}</Label>
-                      <Textarea id="story" value={aiContent.story} rows={3} />
+                      <Textarea
+                        id="story"
+                        value={productData.story}
+                        onChange={e =>
+                          setProductData({
+                            ...productData,
+                            story: e.target.value,
+                          })
+                        }
+                        rows={3}
+                      />
                     </div>
                   </CardContent>
                 </Card>
               </div>
 
-              {/* Social Media Content */}
-              <div className="space-y-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Hash className="h-5 w-5 text-primary" />
-                      {t.socialContent}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label htmlFor="hashtags">{t.hashtags}</Label>
-                      <Textarea id="hashtags" value={aiContent.hashtags} rows={2} />
-                    </div>
-
-                    <Separator />
-
-                    <div>
-                      <Label className="flex items-center gap-2">
-                        <Instagram className="h-4 w-4" />
-                        {t.instagramReels}
-                      </Label>
-                      <div className="space-y-2 mt-2">
-                        {aiContent.reelScripts.map((script, index) => (
-                          <Textarea 
-                            key={index} 
-                            value={script} 
-                            rows={2}
-                            className="text-sm"
-                          />
-                        ))}
+              {/* Social Media Content - Only show if AI generated content exists */}
+              {generatedContent && (
+                <div className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Hash className="h-5 w-5 text-primary" />
+                        {t.socialContent}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div>
+                        <Label htmlFor="hashtags">{t.hashtags}</Label>
+                        <Textarea
+                          id="hashtags"
+                          value={generatedContent?.hashtags?.join(' ') || ''}
+                          rows={2}
+                          readOnly
+                        />
                       </div>
-                    </div>
 
-                    <Separator />
+                      <Separator />
 
-                    <div>
-                      <Label className="flex items-center gap-2">
-                        <MessageSquare className="h-4 w-4" />
-                        {t.whatsappCatalog}
-                      </Label>
-                      <Textarea value={aiContent.whatsappText} rows={4} className="mt-2" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+                      <div>
+                        <Label className="flex items-center gap-2">
+                          <Instagram className="h-4 w-4" />
+                          {t.instagramReels}
+                        </Label>
+                        <div className="space-y-2 mt-2">
+                          {(generatedContent?.social_media_content
+                            ?.instagram_reel
+                            ? [
+                                generatedContent.social_media_content
+                                  .instagram_reel,
+                              ]
+                            : []
+                          ).map((reel, index) => (
+                            <Textarea
+                              key={index}
+                              value={reel}
+                              rows={2}
+                              className="text-sm"
+                              readOnly
+                            />
+                          ))}
+                        </div>
+                      </div>
+
+                      <Separator />
+
+                      <div>
+                        <Label className="flex items-center gap-2">
+                          <MessageSquare className="h-4 w-4" />
+                          {t.whatsappCatalog}
+                        </Label>
+                        <Textarea
+                          value={
+                            generatedContent?.social_media_content
+                              ?.whatsapp_catalog || ''
+                          }
+                          rows={4}
+                          className="mt-2"
+                          readOnly
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
             </div>
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
+              <Button
                 size="lg"
                 className="bg-gradient-to-r from-primary to-primary-glow hover:shadow-warm"
+                onClick={handlePublishProduct}
+                disabled={loading}
               >
-                <UploadIcon className="h-4 w-4 mr-2" />
-                {t.publish}
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Publishing...
+                  </>
+                ) : (
+                  <>
+                    <UploadIcon className="h-4 w-4 mr-2" />
+                    {t.publish}
+                  </>
+                )}
               </Button>
-              <Button size="lg" variant="outline">
-                {t.saveAsDraft}
+              <Button size="lg" variant="outline" onClick={() => setStep(1)}>
+                Start Over
               </Button>
             </div>
           </div>
